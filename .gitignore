@@ -1,0 +1,8 @@
+*.pyc
+*.db*
+.idea
+fabfile.py
+static/CACHE/css
+static/CACHE/js
+static/CACHE/images
+imaging/CACHE/*.png
