@@ -96,7 +96,8 @@ class DashboardsController(object):
     @classmethod
     def RecordDashboardView(cls, dashboard_id):
         dashboard = DashboardsController.GetDashboardById(dashboard_id)
-        dashboard.change_community_value('views', 1)
+        if dashboard:
+            dashboard.change_community_value('views', 1)
 
     @classmethod
     def GetRemixes(cls, insight_id, count):

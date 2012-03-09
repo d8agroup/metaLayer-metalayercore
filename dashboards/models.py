@@ -80,12 +80,17 @@ class Dashboard(models.Model):
             Logger.Error('%s - Load - error: invalid object id supplied: %s' % (__name__, id))
             Logger.Info('%s - Dashboard.Load - finished' % __name__)
             return None
-        dashboard = Dashboard.objects.get(id=object_id)
-        dashboard.last_saved_pretty = dashboard._pretty_date(dashboard.last_saved)
-        dashboard.created_pretty = dashboard._pretty_date(dashboard.created)
-        if dashboard and increment_load_count:
-            dashboard.accessed += 1
-            dashboard.save()
+        try:
+            dashboard = Dashboard.objects.get(id=object_id)
+            dashboard.last_saved_pretty = dashboard._pretty_date(dashboard.last_saved)
+            dashboard.created_pretty = dashboard._pretty_date(dashboard.created)
+            if dashboard and increment_load_count:
+                dashboard.accessed += 1
+                dashboard.save()
+        except Dashboard.DoesNotExist:
+            Logger.Warn('%s - Dashboard.Load - error: could not load dashboard' % __name__)
+            Logger.Debug('%s - Dashboard.Load - error: could not load dashboard with id:%s' % (__name__, id))
+            dashboard = None
         Logger.Info('%s - Dashboard.Load - finished' % __name__)
         return dashboard
 
