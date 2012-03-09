@@ -111,6 +111,8 @@ class Visualization(VisualizationBase):
         data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
         number_of_empty_ranges = 0
         for x in range(len(array_of_start_times)):
+            if x >= len(search_results_collection):
+                continue
             search_result = search_results_collection[x]
             start_time_pretty = get_pretty_date(array_of_start_times[x] + time_interval)
             data_row = [start_time_pretty]
