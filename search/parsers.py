@@ -58,8 +58,11 @@ class SearchQueryParser(object):
 
     def _parse_facets(self):
         Logger.Info('%s - SearchQueryParser._parse_facets - started' % __name__)
-        parsed_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets]
-        facets = '&'.join(parsed_facets)
+        if self.params:
+            parsed_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets]
+            facets = '&'.join(parsed_facets)
+        else:
+            facets = ''
         Logger.Info('%s - SearchQueryParser._parse_facets - finished' % __name__)
         return facets
 
