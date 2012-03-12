@@ -1,4 +1,5 @@
 import time
+import datetime
 
 class VisualizationBase(object):
     color_schemes = {
@@ -119,7 +120,12 @@ class VisualizationBase(object):
             search_end_time = int(time.time())
         else:
             search_end_time = int(search_end_time)
-        search_start_time = int(search_configuration['search_filters']['time'].split('%20TO%20')[0].strip('['))
+        search_start_time = search_configuration['search_filters']['time'].split('%20TO%20')[0].strip('[')
+        try:
+            search_start_time = int(search_start_time)
+        except ValueError:
+            search_start_time = datetime.datetime.now() - datetime.timedelta(days=30)
+            search_start_time = time.mktime(search_start_time.timetuple())
         return search_start_time, search_end_time
 
     def _generate_colorscheme_config_element(self):
