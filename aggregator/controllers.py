@@ -102,10 +102,7 @@ def run_aggregator_for_data_point(data_point, actions=None):
     dpc = DataPointController(data_point)
     content = dpc.run_data_point()
     content = _filter_content_by_last_successful_run(actions, content, data_point)
-    content = [_parse_content_item(item) for item in content]
-    if len(actions):
-        content = apply_actions_to_content(content, actions)
-    post_content_to_solr(content)
+    apply_actions_and_post_to_solr(actions, content)
     Logger.Info('%s - run_aggregator_for_data_point - finished' % __name__)
 
 def post_content_to_solr(content):
@@ -202,3 +199,10 @@ def _map_text_from_content_item(text_array):
             return_data[key] = text[key]
     Logger.Info('%s - _map_text_from_content_item - finished' % __name__)
     return return_data
+
+def apply_actions_and_post_to_solr(actions, content):
+    content = [_parse_content_item(item) for item in content]
+    if actions and len(actions):
+        content = apply_actions_to_content(content, actions)
+    post_content_to_solr(content)
+
