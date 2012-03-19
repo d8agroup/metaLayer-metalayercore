@@ -14,7 +14,7 @@ class Action(BaseAction):
             'name':'kloutsharedapikey',
             'display_name_short':'Influence',
             'display_name_long':'Twitter Influence by Klout',
-            'image_small':'/static/images/thedashboard/actions/klout_small.png',
+            'image_small':'/static/images/thedashboard/actions/klout_small.jpg',
             'instructions':'This actions does not need configuring.',
             'configured':True,
             'elements':[],
