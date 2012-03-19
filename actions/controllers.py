@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.cache import cache
 from logger import Logger
 from utils import my_import
 
@@ -37,6 +38,14 @@ class ActionController(object):
         help_text = api_element['help']
         Logger.Info('%s - ActionController.ExtractAPIKeyHelp - finished' % __name__)
         return help_text
+
+    @classmethod
+    def CacheAdd(cls, key, value):
+        cache.add(key, value, 86400)
+
+    @classmethod
+    def CacheGet(cls, key, default):
+        return cache.get(key, default)
 
     def is_valid(self):
         Logger.Info('%s - ActionController.is_valid - started' % __name__)
@@ -101,6 +110,7 @@ class ActionController(object):
             if type == 'string': return 's'
             if type == 'location_string': return 's'
             if type == 'location_point': return 's'
+            if type == 'float': return 'f'
             return '_s'
         return 'action_%s_%s_%s' % (self.action['name'], prop['name'], get_postfix(prop['type']))
 
@@ -110,5 +120,6 @@ class ActionController(object):
         if type == 'string': return '_none'
         if type == 'location_string': return '_none'
         if type == 'location_point': return '_none'
+        if type == 'float': return 0
         return '_s'
 
