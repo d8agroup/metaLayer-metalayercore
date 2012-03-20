@@ -1,6 +1,7 @@
 from hashlib import md5
 from urllib import quote
 import urlparse
+import datetime
 import re
 from metalayercore.datapoints.classes import BaseDataPoint
 from logger import Logger
@@ -28,6 +29,8 @@ class DataPoint(BaseDataPoint):
                     'type':'text',
                     'value':''
                 },
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=6)).timetuple())),
+                self._generate_base_search_end_time_config_element()
             ]
         }
 

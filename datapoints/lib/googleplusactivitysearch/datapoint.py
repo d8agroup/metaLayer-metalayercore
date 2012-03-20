@@ -1,6 +1,7 @@
 from hashlib import md5
 from urllib2 import urlopen
 from urllib import quote
+import datetime
 from metalayercore.datapoints.classes import BaseDataPoint
 from logger import Logger
 from django.utils import simplejson as json
@@ -41,6 +42,8 @@ class DataPoint(BaseDataPoint):
                     'type':'api_key',
                     'value':''
                 },
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=2)).timetuple())),
+                self._generate_base_search_end_time_config_element()
             ]
         }
 

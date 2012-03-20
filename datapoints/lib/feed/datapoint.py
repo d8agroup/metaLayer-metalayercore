@@ -1,3 +1,4 @@
+import datetime
 import re
 import time
 from metalayercore.datapoints.classes import BaseDataPoint
@@ -26,7 +27,9 @@ class DataPoint(BaseDataPoint):
                     'help':'The full url of the feed you want to subscribe to',
                     'type':'text',
                     'value':''
-                }
+                },
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=6)).timetuple())),
+                self._generate_base_search_end_time_config_element()
             ]
         }
 

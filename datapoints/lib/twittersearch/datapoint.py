@@ -6,6 +6,7 @@ from logger import Logger
 from django.utils import simplejson as json
 from dateutil import parser as dateutil_parser, tz
 import time
+import datetime
 
 class DataPoint(BaseDataPoint):
     def get_unconfigured_config(self):
@@ -27,6 +28,8 @@ class DataPoint(BaseDataPoint):
                     'type':'text',
                     'value':''
                 },
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
+                self._generate_base_search_end_time_config_element()
             ]
         }
 
