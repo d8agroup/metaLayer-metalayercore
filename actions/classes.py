@@ -12,3 +12,6 @@ class BaseAction(object):
 
     def action_removed(self, config):
         pass
+
+    def get_content_item_template(self):
+        return ''

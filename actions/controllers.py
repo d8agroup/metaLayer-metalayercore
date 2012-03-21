@@ -78,6 +78,15 @@ class ActionController(object):
         Logger.Info('%s - DataPointController.get_configured_display_name - finished' % __name__)
         return display_name
 
+    def get_content_item_template(self):
+        Logger.Info('%s - ActionController.get_content_item_template - started' % __name__)
+        name = self.action['name']
+        action = ActionController.LoadAction(name)
+        item_template = action.get_content_item_template()
+        Logger.Info('%s - ActionController.get_content_item_template - finished' % __name__)
+        return item_template
+
+
     def action_added(self):
         Logger.Info('%s - ActionController.action_added - started' % __name__)
         name = self.action['name']
