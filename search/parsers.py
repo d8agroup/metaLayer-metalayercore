@@ -154,7 +154,10 @@ class SearchResultsParser(object):
 
     def _construct_facet_link(self, request_base, current_request_args, facet_name, facet_value):
         Logger.Info('%s - SearchResultsParser._construct_facet_link - started' % __name__)
-        link = '%s?%s' % (request_base, '&'.join(['%s=%s' % (k, current_request_args[k]) for k in current_request_args.keys()]))
+        if current_request_args:
+            link = '%s?%s' % (request_base, '&'.join(['%s=%s' % (k, current_request_args[k]) for k in current_request_args.keys()]))
+        else:
+            link = '%s?' % request_base
         link += '&%s=%s' % (facet_name, facet_value)
         link = link.replace('?&', '?')
         Logger.Info('%s - SearchResultsParser._construct_facet_link - finished' % __name__)
