@@ -39,10 +39,8 @@ class Action(BaseAction):
         return ""\
            "{{if " + controller._search_encode_property(sentiment_property) + "}}" \
            "    <li class='action_values sentiment'>" \
-           "        <label><img src='" + config['image_small'] + "'/>Sentiment</label>" \
-           "        <ul>" \
-           "            <li>%{" + controller._search_encode_property(sentiment_property) + "}</li>" \
-           "        </ul>" \
+           "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Sentiment:</label>&nbsp;" \
+           "        <span style='font-weight:bold;'>${" + controller._search_encode_property(sentiment_property) + "}</span>" \
            "    </li>" \
            "{{/if}}"
 
@@ -63,7 +61,7 @@ class Action(BaseAction):
                 sentiment = float(sum(sentiments))/math.sqrt(len(sentiments))
                 if sentiment >= 0.5:
                     return 'positive'
-                elif sentiment <= 0.5:
+                elif sentiment <= -0.5:
                     return 'negative'
                 return 'neutral'
             else:

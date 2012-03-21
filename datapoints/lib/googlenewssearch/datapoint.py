@@ -40,7 +40,8 @@ class DataPoint(BaseDataPoint):
                    "<img src='/static/images/lib/yoo/google_2424.png' style='width:20px; padding-right:10px;' align='left'/>" \
                    "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
                    "<p style='margin-bottom:2px;'>${source_display_name} - ${action_localsentimentanalysis_sentiment_s}</p>"\
-                   "<a href='${link}' class='tool_tip' title='click to view the original article'><p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p></a>" \
+                   "<a href='${link}' class='tool_tip' title='click to view the original article'><p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p></a>"\
+                   "<ul style='padding-left:30px;' class='actions'></ul>"\
                "</li>"
 
     def generate_configured_guid(self, config):

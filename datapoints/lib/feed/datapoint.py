@@ -40,6 +40,7 @@ class DataPoint(BaseDataPoint):
                 "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
                 "<p style='margin-bottom:2px;'>${source_display_name}</p>" \
                 "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p>" \
+                "<ul style='padding-left:30px;' class='actions'></ul>" \
             "</li>"
 
     def generate_configured_guid(self, config):

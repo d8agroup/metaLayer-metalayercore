@@ -45,6 +45,7 @@ class DataPoint(BaseDataPoint):
                     "<img src='/static/images/lib/yoo/twitter_2424.png' style='width:15px;'/>"\
                     "</p>"\
                     "<a href='${link}'><p style='padding-left:60px;' class='tool_tip' title='click to see original post on Twitter+'>${title}</p></a>"\
+                    "<ul style='padding-left:60px;' class='actions'></ul>"\
                 "</li>"
 
     def generate_configured_guid(self, config):
