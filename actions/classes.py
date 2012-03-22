@@ -14,4 +14,4 @@ class BaseAction(object):
         pass
 
     def get_content_item_template(self):
-        return ' '
+        return '&nbsp;'
