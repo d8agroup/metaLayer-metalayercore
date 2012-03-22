@@ -39,7 +39,7 @@ class Action(BaseAction):
         return ""\
             "{{if " + controller._search_encode_property(followers) + "}}"\
             "    <li class='action_values'>"\
-            "        <label><img src=http://a0.twimg.com/profile_images/1865030972/Draftfcb-Logo-Small-V2_normal.jpg' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Followers:</label>&nbsp;"\
+            "        <label><img src='http://a0.twimg.com/profile_images/1865030972/Draftfcb-Logo-Small-V2_normal.jpg' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Followers:</label>&nbsp;"\
             "        <span style='font-weight:bold;'>${" + controller._search_encode_property(followers) + "}</span>"\
             "    </li>"\
             "{{/if}}" \
