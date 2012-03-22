@@ -63,7 +63,7 @@ class ActionController(object):
         clean_results = []
         for raw_result in raw_results:
             clean_result = {'id':raw_result['id']}
-            for prop in self.action['content_properties']['added']:
+            for prop in action.get_unconfigured_config()['content_properties']['added']:
                 if prop['name'] in raw_result:
                     clean_result[self._search_encode_property(prop)] = self._map_property_default_if_required(raw_result[prop['name']], prop['type'])
             clean_results.append(clean_result)
@@ -86,7 +86,6 @@ class ActionController(object):
         Logger.Info('%s - ActionController.get_content_item_template - finished' % __name__)
         return item_template
 
-
     def action_added(self):
         Logger.Info('%s - ActionController.action_added - started' % __name__)
         name = self.action['name']
@@ -104,7 +103,9 @@ class ActionController(object):
     def extract_ids_of_content_without_action_applied(self, content_from_solr):
         Logger.Info('%s - ActionController.action_added - started' % __name__)
         Logger.Debug('%s - ActionController.action_added - started with content_from_solr:%s' % (__name__, content_from_solr))
-        basic_properties = [prop for prop in self.action['content_properties']['added'] if prop['type'] != 'object']
+        action_name = self.action['name']
+        action = ActionController.LoadAction(action_name)
+        basic_properties = [prop for prop in action.get_unconfigured_config()['content_properties']['added'] if prop['type'] != 'object']
         search_encoded_basic_properties = [self._search_encode_property(prop) for prop in basic_properties]
         content_ids_without_action_applied = []
         for item in content_from_solr:

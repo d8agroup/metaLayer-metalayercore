@@ -164,6 +164,12 @@ def _filter_content_by_last_successful_run(actions, content, data_point):
     return content
 
 def _parse_content_item(content_item):
+    def get_postfix(type):
+        if type == 'string': return 's'
+        if type == 'location_string': return 's'
+        if type == 'location_point': return 's'
+        if type == 'float': return 'f'
+        return '_s'
     Logger.Info('%s - _parse_content_item - stated' % __name__)
     Logger.Debug('%s - _parse_content_item - stated with content_item:%s' % (__name__, content_item))
     return_data = {}
@@ -183,6 +189,11 @@ def _parse_content_item(content_item):
         for key in ['id', 'id_string', 'display_name']:
             if key in content_item['source']:
                 return_data['source_%s' % key] = content_item['source'][key]
+    if 'extensions' in content_item and isinstance(content_item['extensions'], dict):
+        for key, value in content_item['extensions'].items():
+            type = value['type'] if 'type' in value else 'string'
+            return_data_key = 'extensions_%s_%s' % (key, get_postfix(type))
+            return_data[return_data_key] = value['value'] if 'value' in value else value
     Logger.Info('%s - _parse_content_item - finished' % __name__)
     return return_data
 
