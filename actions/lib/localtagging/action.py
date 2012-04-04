@@ -1,5 +1,4 @@
 from metalayercore.actions.classes import BaseAction
-import nltk
 from metalayercore.actions.controllers import ActionController
 
 tokenizer = None
@@ -27,6 +26,7 @@ class Action(BaseAction):
         }
 
     def run(self, config, content):
+        import nltk
         """
         from metalayercore.actions.controllers import ActionController
         tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+|[^\w\s]+')
