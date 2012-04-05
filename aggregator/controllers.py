@@ -53,7 +53,7 @@ class AggregationController(object):
                 Logger.Info('%s - AggregationController.AggregateMultipleDataPointHistoryWithAction - finished' % __name__)
                 return
             content_from_solr = response['response']['docs']
-            content_with_action_applied = apply_actions_to_content(content_from_solr, [action])
+            content_with_action_applied = apply_actions_to_content_with_historical_check(content_from_solr, [action])
             post_content_to_solr(content_with_action_applied)
         Logger.Info('%s - AggregationController.AggregateMultipleDataPointHistoryWithAction - finished' % __name__)
 
@@ -119,9 +119,9 @@ def post_content_to_solr(content):
         Logger.Error('%s - post_content_to_solr - error: %s' % (__name__, e))
     Logger.Info('%s - run_aggregator_for_data_point - finished' % __name__)
 
-def apply_actions_to_content(content, actions):
-    Logger.Info('%s - _apply_actions_to_content - stated' % __name__)
-    Logger.Debug('%s - _apply_actions_to_content - stated with content:%s and action:%s' % (__name__, content, actions))
+def apply_actions_to_content_with_historical_check(content, actions):
+    Logger.Info('%s - apply_actions_to_content_with_historical_check - stated' % __name__)
+    Logger.Debug('%s - apply_actions_to_content_with_historical_check - stated with content:%s and action:%s' % (__name__, content, actions))
     solr_url = settings.SOLR_CONFIG['solr_url']
     content_id_query_parts = ['id:%s' % item['id'] for item in content]
     solr_url = '%s/select/' % solr_url
@@ -131,8 +131,8 @@ def apply_actions_to_content(content, actions):
         response = urllib2.urlopen(request)
         response = json.loads(response.read())
     except Exception, e:
-        Logger.Error('%s - _apply_actions_to_content - error:%s' % (__name__, e))
-        Logger.Info('%s - _apply_actions_to_content - finished' % __name__)
+        Logger.Error('%s - apply_actions_to_content_with_historical_check - error:%s' % (__name__, e))
+        Logger.Info('%s - apply_actions_to_content_with_historical_check - finished' % __name__)
         return content
     content_from_solr = response['response']['docs']
     content_ids_from_solr = [item['id'] for item in content_from_solr]
@@ -154,7 +154,27 @@ def apply_actions_to_content(content, actions):
                         already_exists = True
             if not already_exists:
                 return_content.append(item)
-    Logger.Info('%s - _apply_actions_to_content - finished' % __name__)
+    Logger.Info('%s - apply_actions_to_content_with_historical_check - finished' % __name__)
+    return return_content
+
+def apply_actions_to_content_without_historical_check(content, actions):
+    Logger.Info('%s - apply_actions_to_content_without_historical_check - stated' % __name__)
+    Logger.Debug('%s - apply_actions_to_content_without_historical_check - stated with content:%s and action:%s' % (__name__, content, actions))
+    return_content = content[:]
+    for action in actions:
+        ac = ActionController(action)
+        content_requiring_action = content
+        content_with_action_applied = ac.run_action(content_requiring_action)
+        for item in content_with_action_applied:
+            already_exists = False
+            for return_item in return_content:
+                if return_item['id'] == item['id']:
+                    for key in item.keys():
+                        return_item[key] = item[key]
+                        already_exists = True
+            if not already_exists:
+                return_content.append(item)
+    Logger.Info('%s - apply_actions_to_content_without_historical_check - finished' % __name__)
     return return_content
 
 def _filter_content_by_last_successful_run(actions, content, data_point):
@@ -212,9 +232,12 @@ def _map_text_from_content_item(text_array):
     Logger.Info('%s - _map_text_from_content_item - finished' % __name__)
     return return_data
 
-def apply_actions_and_post_to_solr(actions, content):
+def apply_actions_and_post_to_solr(actions, content, check_for_existing_content=True):
     content = [_parse_content_item(item) for item in content]
     if actions and len(actions):
-        content = apply_actions_to_content(content, actions)
+        if check_for_existing_content:
+            content = apply_actions_to_content_with_historical_check(content, actions)
+        else:
+            content = apply_actions_to_content_without_historical_check(content, actions)
     post_content_to_solr(content)
 

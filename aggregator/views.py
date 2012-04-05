@@ -37,7 +37,11 @@ def post_content(request):
             return JSONResponse({'status':'error', 'errors':['There was an error json decoding the POST field "actions"']})
 
     try:
-        apply_actions_and_post_to_solr(actions, content)
+        skip_duplicate_check = request.POST.get('skip_duplicate_check')
+        if skip_duplicate_check and skip_duplicate_check == 'true':
+            apply_actions_and_post_to_solr(actions, content, False)
+        else:
+            apply_actions_and_post_to_solr(actions, content)
     except Exception, e:
         Logger.Error('%s - post_content - error posing content' % __name__)
         Logger.Debug('%s - post_content - error posing content: %s' % (__name__, e))
