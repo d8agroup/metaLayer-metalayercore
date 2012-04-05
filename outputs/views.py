@@ -46,5 +46,7 @@ def generate_output(request, url_identifier):
     content, content_type = oc.generate_output(search_results)
     Logger.Info('%s - generate_output - finished' % __name__)
     response = HttpResponse(content=content, content_type=content_type)
+    if 'csv' in content_type:
+        response['Content-Disposition'] = 'attachment; filename=metalayer_output.csv'
     response['Access-Control-Allow-Origin'] = '*'
     return response
