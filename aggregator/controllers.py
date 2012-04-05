@@ -124,8 +124,8 @@ def apply_actions_to_content(content, actions):
     Logger.Debug('%s - _apply_actions_to_content - stated with content:%s and action:%s' % (__name__, content, actions))
     solr_url = settings.SOLR_CONFIG['solr_url']
     content_id_query_parts = ['id:%s' % item['id'] for item in content]
-    solr_url = '%s/select/'
-    solr_data = 'q=*&wt=json&rows=%i&fq=%s' % (solr_url, len(content_id_query_parts), '%20OR%20'.join(content_id_query_parts))
+    solr_url = '%s/select/' % solr_url
+    solr_data = 'q=*&wt=json&rows=%i&fq=%s' % (len(content_id_query_parts), '%20OR%20'.join(content_id_query_parts))
     try:
         request = urllib2.Request(solr_url, data=solr_data)
         response = urllib2.urlopen(request)
