@@ -105,13 +105,15 @@ def run_aggregator_for_data_point(data_point, actions=None):
     apply_actions_and_post_to_solr(actions, content)
     Logger.Info('%s - run_aggregator_for_data_point - finished' % __name__)
 
-def post_content_to_solr(content):
+def post_content_to_solr(content, commit_within=False):
     Logger.Info('%s - post_content_to_solr - started' % __name__)
     solr_url = settings.SOLR_CONFIG['solr_url']
     request_data = json.dumps(content)
     Logger.Debug('%s - post_content_to_solr - posting the following to solr: %s' % (__name__, request_data))
     try:
-        request = urllib2.Request('%s/update/json/?commit=true' % solr_url, request_data, {'Content-Type': 'application/json'})
+        commit_policy = 'commit=true' if not commit_within else 'commitWithin=20000'
+        solr_url = '%s/update/json/?%s' % (commit_policy, solr_url)
+        request = urllib2.Request(solr_url, request_data, {'Content-Type': 'application/json'})
         response = urllib2.urlopen(request)
         response_stream = response.read()
         Logger.Debug('%s - post_content_to_solr - solr returned: %s' % (__name__, response_stream))
@@ -235,9 +237,10 @@ def _map_text_from_content_item(text_array):
 def apply_actions_and_post_to_solr(actions, content, check_for_existing_content=True):
     content = [_parse_content_item(item) for item in content]
     if actions and len(actions):
-        if check_for_existing_content:
+        if check_for_existing_content: #This is a standard content add action
             content = apply_actions_to_content_with_historical_check(content, actions)
-        else:
+            post_content_to_solr(content)
+        else: #This is a bulk upload action
             content = apply_actions_to_content_without_historical_check(content, actions)
-    post_content_to_solr(content)
+            post_content_to_solr(content, True)
 
