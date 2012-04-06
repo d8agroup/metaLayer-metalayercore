@@ -238,8 +238,7 @@ def apply_actions_and_post_to_solr(actions, content, check_for_existing_content=
     if actions and len(actions):
         if check_for_existing_content:
             content = apply_actions_to_content_with_historical_check(content, actions)
-            post_content_to_solr(content)
         else:
             content = apply_actions_to_content_without_historical_check(content, actions)
-            post_content_to_solr(content, False)
+    post_content_to_solr(content, check_for_existing_content)
 

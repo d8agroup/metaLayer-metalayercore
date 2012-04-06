@@ -43,7 +43,7 @@ class Action(BaseAction):
                "        </span>"\
                "    </li>"\
                "{{/if}}"
-    
+
     def run(self, config, content):
         def producer(q, content):
             for item in content:
