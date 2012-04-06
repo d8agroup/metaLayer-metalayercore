@@ -5,6 +5,7 @@ from urllib import urlencode
 from urllib2 import Request, urlopen
 from metalayercore.actions.classes import BaseAction
 from logger import Logger
+from metalayercore.actions.controllers import ActionController
 
 class Action(BaseAction):
     def get_unconfigured_config(self):
@@ -65,6 +66,22 @@ class Action(BaseAction):
         if errors['api_key']:
             return False, errors
         return True, {}
+
+    def get_content_item_template(self):
+        config = self.get_unconfigured_config()
+        controller = ActionController(config)
+        sentiment_property = config['content_properties']['added'][0]
+        return ""\
+               "{{if " + controller._search_encode_property(sentiment_property) + "}}"\
+               "    <li class='action_values locations'>"\
+               "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Locations:</label>&nbsp;"\
+               "        <span style='font-weight:bold;'>"\
+               "            {{each(index, element) " + controller._search_encode_property(sentiment_property) + "}}"\
+               "                {{if element != '_none' && index < 5}}${element},{{/if}} {{if index == 6}}...{{/if}}"\
+               "            {{/each}}"\
+               "        </span>"\
+               "    </li>"\
+               "{{/if}}"
 
     def run(self, config, content):
         def producer(q, config, content):
