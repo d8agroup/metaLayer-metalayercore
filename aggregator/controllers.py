@@ -105,13 +105,13 @@ def run_aggregator_for_data_point(data_point, actions=None):
     apply_actions_and_post_to_solr(actions, content)
     Logger.Info('%s - run_aggregator_for_data_point - finished' % __name__)
 
-def post_content_to_solr(content, commit_within=False):
+def post_content_to_solr(content, commit=True):
     Logger.Info('%s - post_content_to_solr - started' % __name__)
     solr_url = settings.SOLR_CONFIG['solr_url']
     request_data = json.dumps(content)
     Logger.Debug('%s - post_content_to_solr - posting the following to solr: %s' % (__name__, request_data))
     try:
-        solr_url = '%s/update/json/?commit=true' % solr_url
+        solr_url = '%s/update/json/%s' % (solr_url, '?commit=true' if commit else '')
         request = urllib2.Request(solr_url, request_data, {'Content-Type': 'application/json'})
         response = urllib2.urlopen(request)
         response_stream = response.read()
@@ -238,7 +238,8 @@ def apply_actions_and_post_to_solr(actions, content, check_for_existing_content=
     if actions and len(actions):
         if check_for_existing_content:
             content = apply_actions_to_content_with_historical_check(content, actions)
+            post_content_to_solr(content)
         else:
             content = apply_actions_to_content_without_historical_check(content, actions)
-    post_content_to_solr(content)
+            post_content_to_solr(content, False)
 
