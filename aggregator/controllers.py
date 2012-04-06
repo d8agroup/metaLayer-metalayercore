@@ -112,7 +112,7 @@ def post_content_to_solr(content, commit_within=False):
     Logger.Debug('%s - post_content_to_solr - posting the following to solr: %s' % (__name__, request_data))
     try:
         commit_policy = 'commit=true' if not commit_within else 'commitWithin=20000'
-        solr_url = '%s/update/json/?%s' % (commit_policy, solr_url)
+        solr_url = '%s/update/json/?%s' % (solr_url, commit_policy)
         request = urllib2.Request(solr_url, request_data, {'Content-Type': 'application/json'})
         response = urllib2.urlopen(request)
         response_stream = response.read()
