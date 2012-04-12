@@ -69,7 +69,8 @@ class Visualization(VisualizationBase):
             for dimension in config['data_dimensions']:
                 return_data.append([{
                     'name':dimension['value']['value'],
-                    'type':'basic_facet'
+                    'type':'basic_facet',
+                    'limit':10
                 }])
         else:
             start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
