@@ -89,11 +89,8 @@ class Action(BaseAction):
         companies = config['content_properties']['added'][7]
         people = config['content_properties']['added'][8]
         return "" \
-            "<li class='action_values'><b>Meta Data:</b> " \
-            "story id=${" + controller._search_encode_property(storyid) + "}, " \
-            "language=${" + controller._search_encode_property(language) + "}, " \
-            "word count=${" + controller._search_encode_property(numberofwords) + "}, " \
-            "character count=${" + controller._search_encode_property(numberofchars) + "}</li>"\
+            "<li class='action_values' style='padding-top:5px'><label>Language Code:</label> <b>${" + controller._search_encode_property(language) + "}</b></li> " \
+            "<li class='action_values'><label>Character Count:</label> <b>${" + controller._search_encode_property(numberofchars) + "}</b></li> " \
             "{{if " + controller._search_encode_property(locations) + "}}"\
             "    <li class='action_values'>"\
             "        <label>locations:</label>&nbsp;"\
