@@ -15,8 +15,8 @@ class DataPoint(BaseDataPoint):
             'image_small':'http://metalayer.com/static/images/favicon.ico',
             'configured':True,
             'elements':[
-                self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 1, 14, 4, 0, 0).timetuple())),
-                self._generate_base_search_end_time_config_element(time.mktime(datetime.datetime(2012, 9, 20, 23, 4, 0).timetuple()))
+                self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 3, 14, 4, 0, 0).timetuple())),
+                self._generate_base_search_end_time_config_element(time.mktime(datetime.datetime(2012, 3, 20, 23, 4, 0).timetuple()))
             ]
         }
 
@@ -36,7 +36,7 @@ class DataPoint(BaseDataPoint):
                 "</li>"
 
     def generate_configured_guid(self, config):
-        return '932ef63c661d734ba7f2d11b88b815c0'
+        return '932ef63c661d734ba7f2d11b88b815c1'
 
     def generate_configured_display_name(self, config):
         return config['full_display_name']
