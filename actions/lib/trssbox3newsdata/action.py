@@ -66,7 +66,7 @@ class Action(BaseAction):
         results = []
         for item in content:
             item_results = {}
-            for prop in config['content_properties']['added']:
+            for prop in self.get_unconfigured_config()['content_properties']['added']:
                 extension = 'f' if prop['type'] == 'float' else 's'
                 key = 'extensions_%s_%s' % (prop['name'], extension)
                 if key in item and item[key]:
