@@ -16,8 +16,8 @@ class DataPoint(BaseDataPoint):
             'image_small':'/static/images/thedashboard/data_points/twitter_small.png',
             'configured':True,
             'elements':[
-                #self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 3, 14, 4, 0, 0).timetuple())),
-                self._generate_base_search_start_time_config_element(),
+                self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 4, 12, 0, 0, 0).timetuple())),
+                #self._generate_base_search_start_time_config_element(),
                 #self._generate_base_search_end_time_config_element(time.mktime(datetime.datetime(2012, 3, 20, 23, 4, 0).timetuple()))
                 self._generate_base_search_end_time_config_element()
             ]
