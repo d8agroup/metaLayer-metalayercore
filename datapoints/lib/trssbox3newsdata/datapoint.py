@@ -16,9 +16,9 @@ class DataPoint(BaseDataPoint):
             'image_small':'http://thomsonreuters.com/favicon.ico',
             'configured':True,
             'elements':[
-                #self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 3, 14, 4, 0, 0).timetuple())),
-                self._generate_base_search_start_time_config_element(),
-                #self._generate_base_search_end_time_config_element(time.mktime(datetime.datetime(2012, 3, 20, 23, 4, 0).timetuple()))
+                self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2009, 1, 1, 0, 0, 0).timetuple())),
+                #self._generate_base_search_start_time_config_element(),
+                #self._generate_base_search_end_time_config_element(time.mktime(datetime.datetime(2012, 5, 20, 23, 4, 0).timetuple()))
                 self._generate_base_search_end_time_config_element()
             ]
         }
