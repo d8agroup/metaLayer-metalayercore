@@ -27,8 +27,8 @@ class DataPoint(BaseDataPoint):
         return ""\
                "<li style='width:100%;'>"\
                "<img src='/static/images/thedashboard/data_points/facebook_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
-               "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
-               "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p>"\
+               "<p style='float:right;padding-right:10px;font-weight:bold'>${display_time2(time)}</p>"\
+               "<p style='padding-left:30px;font-weight:bold;'>${author_display_name}<br /><span style='font-weight:normal;'> ${title}</span></p>"\
                "<ul style='padding-left:30px;' class='actions'></ul>"\
                "</li>"
 

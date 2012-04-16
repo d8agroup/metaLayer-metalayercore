@@ -31,7 +31,7 @@ class DataPoint(BaseDataPoint):
                     "</a>"\
                     "<p style='float:left; padding:2px 0 0 8px;font-weight:bold;width:40%;overflow:hidden;height:12px;'>${author_display_name}</p>"\
                     "<p style='margin-bottom:2px;text-align:right'>"\
-                    "<span style='position:relative;bottom:4px;right:10px;'>${pretty_date}</span>"\
+                    "<span style='position:relative;bottom:4px;right:10px;'>${display_time2(time)}</span>"\
                     "<img src='http://thomsonreuters.com/favicon.ico'/>"\
                     "</p>"\
                     "<a href='${link}'><p style='padding-left:60px;' class='tool_tip' title='click to see original post on Twitter+'>${title}</p></a>"\
