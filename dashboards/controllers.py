@@ -185,8 +185,11 @@ class DashboardsController(object):
         db = Dashboard.Load(dashboard['id'])
         db.collections = dashboard['collections']
         db.name = dashboard['name']
-        if 'config' in dashboard:
-            db.config = dashboard['config']
+        try:
+            if 'config' in dashboard:
+                db.config = dashboard['config']
+        except:
+            pass
         db.last_saved = time.time()
         db.save()
         Logger.Info('%s - update_dashboard - finished' % __name__)
