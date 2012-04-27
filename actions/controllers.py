@@ -100,6 +100,12 @@ class ActionController(object):
         action.action_removed(self.action)
         Logger.Info('%s - ActionController.action_removed - finished' % __name__)
 
+    def get_filters(self):
+        action = ActionController.LoadAction(self.action['name'])
+        config = action.get_unconfigured_config()
+        available_filters = config['content_properties']['added'] if 'content_properties' in config and 'added' in config['content_properties'] else {}
+        return available_filters
+
     def extract_ids_of_content_without_action_applied(self, content_from_solr):
         Logger.Info('%s - ActionController.action_added - started' % __name__)
         Logger.Debug('%s - ActionController.action_added - started with content_from_solr:%s' % (__name__, content_from_solr))
@@ -132,4 +138,5 @@ class ActionController(object):
         if type == 'location_point': return '_none'
         if type == 'float': return 0
         return '_s'
+
 

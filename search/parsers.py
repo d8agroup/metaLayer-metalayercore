@@ -1,5 +1,6 @@
 from django.conf import settings
 from urllib import quote
+from metalayercore.actions.controllers import ActionController
 from metalayercore.datapoints.controllers import DataPointController
 from datetime import datetime
 from logger import Logger
@@ -65,6 +66,22 @@ class SearchQueryParser(object):
             facets = ''
         Logger.Info('%s - SearchQueryParser._parse_facets - finished' % __name__)
         return facets
+
+class SearchActionsParser(object):
+    def __init__(self, actions):
+        self.actions = actions
+
+    def parse_actions(self):
+        if not self.actions:
+            return ''
+        return_parts = []
+        for raw_action in self.actions:
+            ac = ActionController(raw_action)
+            filters = ac.get_filters()
+            basic_filters = [f for f in filters if f['type'] in ('string', 'location_string')]
+            return_parts.append('&'.join(['facet.field=%s' % ac._search_encode_property(f) for f in basic_filters]))
+        return_string = '&'.join(return_parts)
+        return return_string
 
 class SearchResultsParser(object):
     def __init__(self, solr_response, request_base, current_request_args):

@@ -1,7 +1,7 @@
 from urllib2 import urlopen
 from django.conf import settings
 from logger import Logger
-from metalayercore.search.parsers import SearchDataPointParser, SearchQueryParser, SearchResultsParser, SearchQueryAdditionsParser
+from metalayercore.search.parsers import SearchDataPointParser, SearchQueryParser, SearchResultsParser, SearchQueryAdditionsParser, SearchActionsParser
 from django.utils import simplejson as json
 
 class SearchController(object):
@@ -17,11 +17,14 @@ class SearchController(object):
         sdpp = SearchDataPointParser(data_points)
         search_filters = self.configuration['search_filters']
         sqp = SearchQueryParser(search_filters)
+        search_actions = self.configuration['actions']
+        sap = SearchActionsParser(search_actions)
         search_components = [
             settings.SOLR_CONFIG['solr_params'],
             '&'.join(['facet.field=%s' % facet for facet in settings.SOLR_CONFIG['solr_facets'].keys() if settings.SOLR_CONFIG['solr_facets'][facet]['enabled']]),
             sdpp.parse_data_points(),
-            sqp.parse_query()
+            sqp.parse_query(),
+            sap.parse_actions()
         ]
         if search_query_additions:
             sqap = SearchQueryAdditionsParser(search_query_additions)
