@@ -79,7 +79,7 @@ class SearchActionsParser(object):
             ac = ActionController(raw_action)
             filters = ac.get_filters()
             basic_filters = [f for f in filters if f['type'] in ('string', 'location_string')]
-            return_parts.append('&'.join(['facet.field=%s' % ac._search_encode_property(f) for f in basic_filters]))
+            return_parts.append('&'.join(['facet.field=%s&f.%s.facet.mincount=0' % (ac._search_encode_property(f), ac._search_encode_property(f)) for f in basic_filters]))
         return_string = '&'.join(return_parts)
         return return_string
 
