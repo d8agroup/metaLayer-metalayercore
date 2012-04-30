@@ -114,7 +114,7 @@ class SearchResultsParser(object):
         Logger.Info('%s - SearchResultsParser._extract_facets - started' % __name__)
         facet_groups = []
         if solr_response:
-            facet_groups = [{'name':f, 'display_name':f, 'facets':[]} for f in solr_response['facet_counts']['facet_fields'].keys()]
+            facet_groups = [{'name':f, 'display_name':ActionController.DecodeSearchPropertyDisplayName(f), 'facets':[]} for f in solr_response['facet_counts']['facet_fields'].keys()]
             for fg in facet_groups:
                 for x in range(0, len(solr_response['facet_counts']['facet_fields'][fg['name']]), 2):
                     if solr_response['facet_counts']['facet_fields'][fg['name']][x] in ['_none']:

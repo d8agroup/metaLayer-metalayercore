@@ -40,6 +40,27 @@ class ActionController(object):
         return help_text
 
     @classmethod
+    def DecodeSearchPropertyDisplayName(cls, search_encoded_name):
+        if not search_encoded_name.startswith('action'):
+            return search_encoded_name
+        search_encoded_name_parts = search_encoded_name.split('_')
+        if len(search_encoded_name_parts) <> 4:
+            return search_encoded_name
+        action_name = search_encoded_name_parts[1]
+        try:
+            action = cls.LoadAction(action_name)
+        except AttributeError:
+            return search_encoded_name
+        config = action.get_unconfigured_config()
+        candidate_properties = [p for p in config['content_properties']['added']
+                                if 'content_properties' in config
+                                and 'added' in config['content_properties']
+                                and p['name'] == search_encoded_name_parts[2]]
+        if not candidate_properties:
+            return search_encoded_name
+        return candidate_properties[0]['display_name']
+
+    @classmethod
     def CacheAdd(cls, key, value):
         cache.add(key, value, 86400)
 
@@ -138,5 +159,6 @@ class ActionController(object):
         if type == 'location_point': return '_none'
         if type == 'float': return 0
         return '_s'
+
 
 
