@@ -83,6 +83,7 @@ class SearchResultsParser(object):
             'breadcrumbs': self._extract_breadcrumbs(self.current_request_args),
             'pagination': self._extract_pagination(self.solr_response),
             'keywords': self._extract_keywords(self.solr_response),
+            'stats':self._extract_stats(self.solr_response),
         }
         Logger.Info('%s - SearchResultsParser.search_results - finished' % __name__)
         return result
@@ -109,6 +110,17 @@ class SearchResultsParser(object):
                     })
         Logger.Info('%s - SearchResultsParser._extract_facets - finished' % __name__)
         return facet_groups
+
+    def _extract_stats(self, solr_response):
+        stats_groups = {}
+        if solr_response:
+            stats = solr_response.get('stats')
+            if stats:
+                stats_fields = stats.get('stats_fields')
+                if stats_fields and type(stats_fields) == dict:
+                    stats_groups = stats_fields
+        return stats_groups
+
 
     def _extract_facet_ranges(self, solr_response):
         Logger.Info('%s - SearchResultsParser._extract_facet_ranges - started' % __name__)
@@ -198,7 +210,6 @@ class SearchQueryAdditionsParser(object):
         if basic_facet_fields:
             additions.append('&'.join(['facet.field=%s&f.%s.facet.limit=%i' % (a['name'], a['name'], (a['limit'] if 'limit' in a else 100)) for a in basic_facet_fields]))
 
-
         range_facet_fields = [a for a in self.query_additions if a['type'] == 'range_facet']
         if range_facet_fields:
             additions.append('&'.join(['facet.range=%s&f.%s.facet.range.gap=%i&f.%s.facet.range.start=%i&f.%s.facet.range.end=%i&f.%s.facet.mincount=0' % (a['name'], a['name'], a['gap'], a['name'], a['start'], a['name'], a['end'], a['name']) for a in range_facet_fields]))
@@ -211,7 +222,9 @@ class SearchQueryAdditionsParser(object):
         if range_facet_queries:
             additions.append('&'.join(['fq=%s:[%s TO %s]' % (a['name'], a['range']['start'], a['range']['end']) for a in range_facet_queries]).replace(' ', '%20'))
 
-
+        stats_queries = [a for a in self.query_additions if a['type'] == 'stats_query']
+        if stats_queries:
+            additions.append('&'.join(['stats.field=%s' % a['name'] for a in stats_queries]))
 
         Logger.Info('%s - SearchQueryAdditionsParser.get_formatted_query_additions - started' % __name__)
         return '&'.join(additions)
