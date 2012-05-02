@@ -60,7 +60,7 @@ class SearchQueryParser(object):
     def _parse_facets(self):
         Logger.Info('%s - SearchQueryParser._parse_facets - started' % __name__)
         if self.params:
-            parsed_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets]
+            parsed_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets and self.params[k]]
             facets = '&'.join(parsed_facets)
         else:
             facets = ''
@@ -137,7 +137,6 @@ class SearchResultsParser(object):
                 if stats_fields and type(stats_fields) == dict:
                     stats_groups = stats_fields
         return stats_groups
-
 
     def _extract_facet_ranges(self, solr_response):
         Logger.Info('%s - SearchResultsParser._extract_facet_ranges - started' % __name__)
