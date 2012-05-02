@@ -7,11 +7,11 @@ from metalayercore.aggregator.models import RunRecord
 from metalayercore.dashboards.controllers import DashboardsController
 from metalayercore.datapoints.controllers import DataPointController
 from logger import Logger
-from userprofiles.controllers import UserController
 from django.utils import simplejson as json
 
 class AggregationController(object):
     def __init__(self, user_filter):
+        from userprofiles.controllers import UserController
         Logger.Info('%s - AggregationController.__init__ - started' % __name__)
         Logger.Debug('%s - AggregationController.__init__ - started with user_filter %s' % (__name__, user_filter))
         self.users = UserController.GetAllUsers(user_filter)
@@ -56,6 +56,16 @@ class AggregationController(object):
             content_with_action_applied = apply_actions_to_content_with_historical_check(content_from_solr, [action])
             post_content_to_solr(content_with_action_applied)
         Logger.Info('%s - AggregationController.AggregateMultipleDataPointHistoryWithAction - finished' % __name__)
+
+class DashboardAggregator(object):
+    def __init__(self, dashboard):
+        self.dashboard = dashboard
+
+    def aggregate(self):
+        for collection in self.dashboard.collections:
+            for data_point in collection['data_points']:
+                run_aggregator_for_data_point(data_point, collection['actions'])
+
 
 class _UserThread(threading.Thread):
     def __init__(self, user):
