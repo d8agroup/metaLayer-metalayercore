@@ -26,7 +26,6 @@ class SearchDataPointParser(object):
         Logger.Info('%s - SearchDataPointParser._parse_data_point - finished' % __name__)
         return data_point_query
 
-
 class SearchQueryParser(object):
     def __init__(self, query_params):
         Logger.Info('%s - SearchQueryParser.__init__ - started' % __name__)
@@ -208,8 +207,6 @@ class SearchResultsParser(object):
 
     def _pretty_date(self, time=False):
         return get_pretty_date(time)
-
-
 
 class SearchQueryAdditionsParser(object):
     def __init__(self, query_additions):
