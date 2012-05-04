@@ -56,6 +56,18 @@ class Action(BaseAction):
                 'raw_influence':x['raw_influence']
             } for x in return_values]
 
+    def get_content_item_template(self):
+        config = self.get_unconfigured_config()
+        controller = ActionController(config)
+        influence_property = config['content_properties']['added'][0]
+        return ""\
+               "{{if " + controller._search_encode_property(influence_property) + " && " + controller._search_encode_property(influence_property) + " != '_none'}}"\
+               "    <li class='action_values influence'>"\
+               "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Influence:</label>&nbsp;"\
+               "        <span style='font-weight:bold;'>${" + controller._search_encode_property(influence_property) + "}</span>"\
+               "    </li>"\
+               "{{/if}}"
+
     def _call_api(self, user_names, return_values):
         query_data = {'users':','.join(user_names), 'key':'2qus3q26rfnz2gsefxb2czg4'}
         query_data = urllib.urlencode(query_data)
