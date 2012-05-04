@@ -17,7 +17,7 @@ class SearchController(object):
         sdpp = SearchDataPointParser(data_points)
         search_filters = self.configuration['search_filters']
         sqp = SearchQueryParser(search_filters)
-        search_actions = self.configuration['actions']
+        search_actions = self.configuration.get('actions')
         sap = SearchActionsParser(search_actions)
         search_components = [
             settings.SOLR_CONFIG['solr_params'],
