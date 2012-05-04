@@ -10,9 +10,9 @@ class DataPoint(BaseDataPoint):
             'display_name_short':'Test Data',
             'full_display_name':'Test Data',
             'instructions':'Use this data point to search the public tweet stream.',
-            'image_large':'http://metalayer.com/static/images/favicon.ico',
-            'image_medium':'http://metalayer.com/static/images/favicon.ico',
-            'image_small':'http://metalayer.com/static/images/favicon.ico',
+            'image_large':'/static/images/favicon.ico',
+            'image_medium':'/static/images/favicon.ico',
+            'image_small':'/static/images/favicon.ico',
             'configured':True,
             'elements':[
                 self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 3, 14, 4, 0, 0).timetuple())),
