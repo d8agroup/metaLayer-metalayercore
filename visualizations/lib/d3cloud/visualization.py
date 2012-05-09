@@ -72,6 +72,7 @@ class Visualization(VisualizationBase):
         return return_data
 
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
+        data_dimension = config['data_dimensions'][0]['value']['value']
         js = ''\
         'function font_size(d) {\n' \
         '    var words = WORDS;'\
@@ -103,12 +104,17 @@ class Visualization(VisualizationBase):
         '        else' \
         '           var index = Math.round((d.size /  Math.round($("#v_VISUALIZATION_ID").width()/8)) * 5);\n'\
         '        return COLORS[index];\n'\
-        '    })\n'\
+        '    })\n' \
+        '    .style("cursor", "pointer")\n'\
         '    .attr("text-anchor", "middle")\n'\
         '    .attr("transform", function(d) {\n'\
         '        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";\n'\
         '    })\n'\
-        '    .text(function(d) { return d.text; });\n'\
+        '    .text(function(d) { return d.text; })\n' \
+        '    .on("click", function(d){\n' \
+        '        var search_data = { filter_name: "'+ data_dimension +'", filter_value:d.text};\n' \
+        '        $("#v_VISUALIZATION_ID").parents(".collection_container").dashboard_collection("apply_search_filter", search_data);\n' \
+        '    });\n'\
         '}\n'\
         'd3.layout.cloud().size([$("#v_VISUALIZATION_ID").width(), $("#v_VISUALIZATION_ID").height()])\n'\
         ' .words(WORDS)\n'\

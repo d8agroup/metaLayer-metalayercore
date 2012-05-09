@@ -70,6 +70,7 @@ class Visualization(VisualizationBase):
         return return_data
 
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
+        data_dimension = config['data_dimensions'][0]['value']['value']
         js = ""\
              "$.getScript\n"\
              "(\n"\
@@ -81,14 +82,22 @@ class Visualization(VisualizationBase):
              "       {\n"\
              "           if(!document.getElementById('v_" + config['id'] + "'))\n"\
              "               return;\n"\
-             "           var data = new google.visualization.DataTable();\n"\
+             "           data_" + config['id'] + " = new google.visualization.DataTable();\n"\
              "           {data_columns}\n"\
-             "           data.addRows(\n"\
+             "           data_" + config['id'] + ".addRows(\n"\
              "               {data_rows}\n"\
              "           );\n"\
              "           var options = {options};\n"\
-             "           var chart = new google.visualization.AreaChart(document.getElementById('v_" + config['id'] + "'));\n"\
-             "           chart.draw(data, options);\n"\
+             "           chart_" + config['id'] + " = new google.visualization.AreaChart(document.getElementById('v_" + config['id'] + "'));\n"\
+             "           function select_handler_" + config['id'] + "(){\n"\
+             "               var selected_item = chart_" + config['id'] + ".getSelection()[0];\n"\
+             "               if (selected_item) {\n"\
+             "                    var data = { filter_name:'" + data_dimension + "', filter_value:data_" + config['id'] + ".getColumnLabel(selected_item.column) }; \n"\
+             "                    $('#v_" + config['id'] + "').parents('.collection_container').dashboard_collection('apply_search_filter', data);\n"\
+             "               }\n"\
+             "           }\n"\
+             "           google.visualization.events.addListener(chart_" + config['id'] + ", 'select', select_handler_" + config['id'] + ");\n"\
+             "           chart_" + config['id'] + ".draw(data_" + config['id'] + ", options);\n"\
              "       }\n"\
              "   }\n"\
              ");\n"
@@ -132,7 +141,7 @@ class Visualization(VisualizationBase):
             return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
 
         number_of_colors = len(data_columns) - 1
-        data_columns = '\n'.join(["data.addColumn('%s', '%s');" % (t['type'], t['name']) for t in data_columns])
+        data_columns = '\n'.join(["data_%s.addColumn('%s', '%s');" % (config['id'], t['type'], t['name']) for t in data_columns])
         data_rows = json.dumps(data_rows)
 
         color_scheme = [e for e in config['elements'] if e['name'] == 'colorscheme'][0]['value']

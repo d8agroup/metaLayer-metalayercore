@@ -100,7 +100,7 @@ class Visualization(VisualizationBase):
             legend = True
 
         number_of_colors = len(data_columns) - 1
-        data_columns = '\n'.join(["data.addColumn('%s', '%s');" % (t['type'], t['name']) for t in data_columns])
+        data_columns = '\n'.join(["data_%s.addColumn('%s', '%s');" % (config['id'], t['type'], t['name']) for t in data_columns])
         data_rows = json.dumps(data_rows)
 
         color_scheme = [e for e in config['elements'] if e['name'] == 'colorscheme'][0]['value']
@@ -146,17 +146,27 @@ class Visualization(VisualizationBase):
             }
         })
 
+        data_dimension = config['data_dimensions'][0]['value']['value']
         js = "" \
             "$.getScript('https://www.google.com/jsapi', function(){ google.load('visualization', '1', {'packages': ['corechart'], 'callback':drawchart_VISUALIZATION_ID}); });\n" \
             "function drawchart_VISUALIZATION_ID() {\n" \
             "   if (!document.getElementById('v_VISUALIZATION_ID')) return;\n" \
-            "   var data = new google.visualization.DataTable();\n" \
+            "   data_VISUALIZATION_ID = new google.visualization.DataTable();\n" \
             "   DATA_COLUMNS\n" \
-            "   data.addRows(DATA_ROWS);\n" \
+            "   data_VISUALIZATION_ID.addRows(DATA_ROWS);\n" \
             "   var options = OPTIONS;\n" \
-            "   var chart = new google.visualization.BarChart(document.getElementById('v_VISUALIZATION_ID'));\n" \
-            "   chart.draw(data, options);\n" \
+            "   chart_VISUALIZATION_ID = new google.visualization.BarChart(document.getElementById('v_VISUALIZATION_ID'));\n"\
+            "   function select_handler_VISUALIZATION_ID(){\n"\
+            "       var selected_item = chart_VISUALIZATION_ID.getSelection()[0];\n"\
+            "       if (selected_item) {\n"\
+            "            var data = { filter_name:'" + data_dimension + "', filter_value:data_VISUALIZATION_ID.getValue(selected_item.row, 0) }; \n"\
+            "            $('#v_VISUALIZATION_ID').parents('.collection_container').dashboard_collection('apply_search_filter', data);\n"\
+            "       }\n"\
+            "   }\n"\
+            "   google.visualization.events.addListener(chart_" + config['id'] + ", 'select', select_handler_" + config['id'] + ");\n"\
+            "   chart_VISUALIZATION_ID.draw(data_VISUALIZATION_ID, options);\n" \
             "}"
+
         return js.replace('VISUALIZATION_ID', config['id'])\
             .replace('DATA_COLUMNS', data_columns)\
             .replace('DATA_ROWS', data_rows)\
