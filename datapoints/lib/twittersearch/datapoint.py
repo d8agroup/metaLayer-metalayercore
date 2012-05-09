@@ -42,7 +42,7 @@ class DataPoint(BaseDataPoint):
                     "<p style='float:left; padding:2px 0 0 8px;font-weight:bold;width:40%;overflow:hidden;height:12px;'>${author_display_name}</p>"\
                     "<p style='margin-bottom:2px;text-align:right'>"\
                     "<span style='position:relative;bottom:4px;right:10px;'>${pretty_date}</span>"\
-                    "<img src='/static/images/lib/yoo/twitter_2424.png' style='width:15px;'/>"\
+                    "<img src='/static/images/thedashboard/data_points/twitter_small.png' style='width:15px;'/>"\
                     "</p>"\
                     "<a href='${link}'><p style='padding-left:60px;' class='tool_tip' title='click to see original post on Twitter+'>${title}</p></a>"\
                     "<ul style='padding-left:60px;' class='actions'></ul>"\

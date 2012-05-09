@@ -60,11 +60,16 @@ class Action(BaseAction):
         config = self.get_unconfigured_config()
         controller = ActionController(config)
         influence_property = config['content_properties']['added'][0]
+        encoded_property = controller._search_encode_property(influence_property)
         return ""\
-               "{{if " + controller._search_encode_property(influence_property) + " && " + controller._search_encode_property(influence_property) + " != '_none'}}"\
+               "{{if " + encoded_property + " && " + encoded_property + " != '_none'}}"\
                "    <li class='action_values influence'>"\
                "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Influence:</label>&nbsp;"\
-               "        <span style='font-weight:bold;'>${" + controller._search_encode_property(influence_property) + "}</span>"\
+               "        <span style='font-weight:bold;'>"\
+               "            <a class='action_inline_filter' data-facet_name='" + encoded_property + "' data-facet_value='${" + encoded_property + "}'>"\
+               "                ${" + encoded_property + "}"\
+               "            </a>"\
+               "        </span>"\
                "    </li>"\
                "{{/if}}"
 

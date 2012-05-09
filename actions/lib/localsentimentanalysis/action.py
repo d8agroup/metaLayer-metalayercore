@@ -36,11 +36,14 @@ class Action(BaseAction):
         config = self.get_unconfigured_config()
         controller = ActionController(config)
         sentiment_property = config['content_properties']['added'][0]
+        encode_property = controller._search_encode_property(sentiment_property)
         return ""\
-           "{{if " + controller._search_encode_property(sentiment_property) + "}}" \
+           "{{if " + encode_property + "}}" \
            "    <li class='action_values sentiment'>" \
            "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Sentiment:</label>&nbsp;" \
-           "        <span style='font-weight:bold;'>${" + controller._search_encode_property(sentiment_property) + "}</span>" \
+           "        <span style='font-weight:bold;'>" \
+           "            <a class='action_inline_filter' data-facet_name='" + encode_property + "' data-facet_value='${" + encode_property + "}'>${" + encode_property + "}</a>" \
+           "        </span>" \
            "    </li>" \
            "{{/if}}"
 
