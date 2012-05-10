@@ -18,6 +18,7 @@ class Visualization(VisualizationBase):
                                      'sentiment analysis',
             'instructions':'Bar charts provide a great way to visualize category based data. You can choose to visualize '
                            'the total value for these categories or break them down over time.',
+            'filter_message':'Click a bar to filter the results above',
             'type':'javascript',
             'configured':False,
             'elements':[
@@ -39,10 +40,10 @@ class Visualization(VisualizationBase):
                     'help':'',
                     'type':'select',
                     'values':[
-                        'Light',
-                        'Dark'
+                        'Dark',
+                        'Light'
                     ],
-                    'value':'Light'
+                    'value':'Dark'
                 },
                 {
                     'name':'title',

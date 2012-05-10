@@ -17,6 +17,7 @@ class Visualization(VisualizationBase):
             'unconfigurable_message':'There is no category data available to be plotted. Try adding something like '
                                      'sentiment analysis',
             'instructions':'Area charts make it really easy to contrast discrete category based data over time.',
+            'filter_message':'Click a point to filter the results above',
             'type':'javascript',
             'configured':False,
             'elements':[
@@ -27,10 +28,10 @@ class Visualization(VisualizationBase):
                     'help':'',
                     'type':'select',
                     'values':[
-                        'Light',
-                        'Dark'
+                        'Dark',
+                        'Light'
                     ],
-                    'value':'Light'
+                    'value':'Dark'
                 },
                 {
                     'name':'title',

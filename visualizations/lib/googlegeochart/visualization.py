@@ -48,10 +48,10 @@ class Visualization(VisualizationBase):
                     'help':'',
                     'type':'select',
                     'values':[
-                        'Light',
                         'Dark',
+                        'Light'
                     ],
-                    'value':'Light'
+                    'value':'Dark'
                 }
             ],
             'data_dimensions':[

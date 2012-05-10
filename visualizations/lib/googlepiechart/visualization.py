@@ -15,6 +15,7 @@ class Visualization(VisualizationBase):
             'instructions':'The pie chart is perhaps the most widely used chart in business and although some criticize '
                            'it, it remains a popular choice when you want to visualize proportions and where exact '
                            'comparison of values is not needed, and they can look really nice.',
+            'filter_message':'Click a pie slice to filter the results above',
             'type':'javascript',
             'configured':False,
             'elements':[
@@ -25,10 +26,10 @@ class Visualization(VisualizationBase):
                     'help':'',
                     'type':'select',
                     'values':[
-                        'Light',
-                        'Dark'
+                        'Dark',
+                        'Light'
                     ],
-                    'value':'Light'
+                    'value':'Dark'
                 },
                 {
                     'name':'title',

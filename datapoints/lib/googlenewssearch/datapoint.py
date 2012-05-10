@@ -37,7 +37,7 @@ class DataPoint(BaseDataPoint):
     def get_content_item_template(self):
         return ""\
                "<li style='width:100%;'>"\
-                   "<img src='/static/images/lib/yoo/google_2424.png' style='width:20px; padding-right:10px;' align='left'/>" \
+                   "<img src='/static/images/thedashboard/data_points/googlenews_small.png' style='width:20px; padding-right:10px;' align='left'/>" \
                    "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
                    "<p style='margin-bottom:2px;'>${source_display_name} - ${action_localsentimentanalysis_sentiment_s}</p>"\
                    "<a href='${link}' class='tool_tip' title='click to view the original article'><p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p></a>"\
