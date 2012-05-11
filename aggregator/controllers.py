@@ -12,10 +12,10 @@ from django.utils import simplejson as json
 
 class AggregationController(object):
     def __init__(self, user_filter):
-        from userprofiles.controllers import UserController
         Logger.Info('%s - AggregationController.__init__ - started' % __name__)
         Logger.Debug('%s - AggregationController.__init__ - started with user_filter %s' % (__name__, user_filter))
         try:
+            from userprofiles.controllers import UserController
             self.users = UserController.GetAllUsers(user_filter)
         except ImportError:
             self.users = User.objects.all()
