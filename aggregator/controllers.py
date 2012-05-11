@@ -2,6 +2,7 @@ from Queue import Queue
 import threading
 import urllib2
 from django.conf import settings
+from django.contrib.auth.models import User
 from metalayercore.actions.controllers import ActionController
 from metalayercore.aggregator.models import RunRecord
 from metalayercore.dashboards.controllers import DashboardsController
@@ -14,7 +15,10 @@ class AggregationController(object):
         from userprofiles.controllers import UserController
         Logger.Info('%s - AggregationController.__init__ - started' % __name__)
         Logger.Debug('%s - AggregationController.__init__ - started with user_filter %s' % (__name__, user_filter))
-        self.users = UserController.GetAllUsers(user_filter)
+        try:
+            self.users = UserController.GetAllUsers(user_filter)
+        except ImportError:
+            self.users = User.objects.all()
         Logger.Info('%s - AggregationController.__init__ - finished' % __name__)
 
     def aggregate(self):
