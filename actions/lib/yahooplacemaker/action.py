@@ -71,13 +71,17 @@ class Action(BaseAction):
         config = self.get_unconfigured_config()
         controller = ActionController(config)
         sentiment_property = config['content_properties']['added'][0]
+        encoded_property = controller._search_encode_property(sentiment_property)
         return ""\
-               "{{if " + controller._search_encode_property(sentiment_property) + "}}"\
+               "{{if " + encoded_property + " && " + encoded_property + " != '_none'}}"\
                "    <li class='action_values locations'>"\
                "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Locations:</label>&nbsp;"\
-               "        <span style='font-weight:bold;'>"\
-               "            {{each(index, element) " + controller._search_encode_property(sentiment_property) + "}}"\
-               "                {{if element != '_none' && index < 5}}${element},{{/if}} {{if index == 6}}...{{/if}}"\
+               "        <span style='font-weight:bold; line-height:150%;'>"\
+               "            {{each(index, element) " + encoded_property + "}}"\
+               "                {{if element != '_none' && index < 5}}"\
+               "                    <a class='action_inline_filter' data-facet_name='" + encoded_property + "' data-facet_value='${element}'>${element}</a>"\
+               "                {{/if}} "\
+               "                {{if index == 6}}...{{/if}}"\
                "            {{/each}}"\
                "        </span>"\
                "    </li>"\
@@ -118,8 +122,8 @@ class LocationGetter(threading.Thread):
         return self.content['id'], self.result
 
     def run(self):
+        text = self.extract_content()
         try:
-            text = self.extract_content()
             text = text.encode('ascii', 'ignore')
             api_key = [e for e in self.config['elements'] if e['name'] == 'api_key'][0]['value']
             url = 'http://wherein.yahooapis.com/v1/document'
@@ -134,7 +138,7 @@ class LocationGetter(threading.Thread):
             self.result = result
         except Exception, e:
             Logger.Warn('%s - LocationGetter.run - error contacting Yahoo Service' % __name__)
-            Logger.Debug('%s - LocationGetter.run - error contacting Yahoo Service:%e' % (__name__, e))
+            Logger.Debug('%s - LocationGetter.run - error contacting Yahoo Service:%e %s' % (__name__, e, text))
             self.result = None
 
     def extract_content(self):
@@ -151,7 +155,7 @@ class LocationGetter(threading.Thread):
             if isinstance(a, dict):
                 if 'type' in a and a['type'] == 'Country':
                     if 'name' in a and a['name'] not in v:
-                        v.append(a['name'])
+                        v.append(a['name'].encode('ascii', 'ignore'))
                     if 'centroid' in a:
                         latlong = '%s,%s' % (a['centroid']['latitude'], a['centroid']['longitude'])
                         if latlong not in p:
@@ -167,7 +171,7 @@ class LocationGetter(threading.Thread):
             if isinstance(a, dict):
                 if 'type' in a and a['type'] != 'Country':
                     if 'name' in a and a['name'] not in v:
-                        v.append(a['name'])
+                        v.append(a['name'].encode('ascii', 'ignore'))
                     if 'centroid' in a:
                         latlong = '%s,%s' % (a['centroid']['latitude'], a['centroid']['longitude'])
                         if latlong not in p:

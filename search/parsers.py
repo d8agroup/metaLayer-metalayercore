@@ -59,7 +59,18 @@ class SearchQueryParser(object):
     def _parse_facets(self):
         Logger.Info('%s - SearchQueryParser._parse_facets - started' % __name__)
         if self.params:
-            parsed_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets and self.params[k]]
+            parsed_facets = []
+            for key, value in self.params.items():
+                if key not in self.not_facets and value:
+                    if '%20TO%20' in value:
+                        parsed_facets.append('fq=%s:%s' % (key, value))
+                    else:
+                        for v in value.split('%20AND%20'):
+                            parsed_facets.append('fq={!raw%sf=%s}%s' % ('%20', key, quote(v)))
+
+            #already_encoded_facets = ['fq=%s:%s' % (k, self.params[k]) for k in self.params.keys() if k not in self.not_facets and self.params[k] and '%' in self.params[k]]
+            #not_encoded_facets = ['fq={!raw%sf=%s}%s' % ('%20', k, quote(self.params[k])) for k in self.params.keys() if k not in self.not_facets and self.params[k] and '%' not in self.params[k]]
+            #parsed_facets = already_encoded_facets + not_encoded_facets
             facets = '&'.join(parsed_facets)
         else:
             facets = ''
@@ -78,7 +89,7 @@ class SearchActionsParser(object):
             ac = ActionController(raw_action)
             filters = ac.get_filters()
             basic_filters = [f for f in filters if f['type'] in ('string', 'location_string')]
-            return_parts.append('&'.join(['facet.field=%s&f.%s.facet.mincount=0' % (ac._search_encode_property(f), ac._search_encode_property(f)) for f in basic_filters]))
+            return_parts.append('&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (ac._search_encode_property(f), ac._search_encode_property(f)) for f in basic_filters]))
         return_string = '&'.join(return_parts)
         return return_string
 
@@ -229,7 +240,7 @@ class SearchQueryAdditionsParser(object):
 
         basic_facet_queries = [a for a in self.query_additions if a['type'] == 'basic_query']
         if basic_facet_queries:
-            additions.append('&'.join(['fq=%s:%s' % (a['name'], a['value']) for a in basic_facet_queries]))
+            additions.append('&'.join(['fq={!raw%sf=%s}%s' % ('%20', a['name'], quote(a['value'])) for a in basic_facet_queries]))
 
         range_facet_queries = [a for a in self.query_additions if a['type'] == 'range_query']
         if range_facet_queries:
