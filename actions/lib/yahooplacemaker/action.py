@@ -73,7 +73,8 @@ class Action(BaseAction):
         sentiment_property = config['content_properties']['added'][0]
         encoded_property = controller._search_encode_property(sentiment_property)
         return ""\
-               "{{if " + encoded_property + " && " + encoded_property + " != '_none'}}"\
+               "{{if typeof(" + encoded_property + ") !== 'undefined'}}"\
+               "    {{if " + encoded_property + ".length > 0 && " + encoded_property + "[0] != '_none'}}"\
                "    <li class='action_values locations'>"\
                "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Locations:</label>&nbsp;"\
                "        <span style='font-weight:bold; line-height:150%;'>"\
@@ -85,6 +86,7 @@ class Action(BaseAction):
                "            {{/each}}"\
                "        </span>"\
                "    </li>"\
+               "    {{/if}}"\
                "{{/if}}"
 
     def run(self, config, content):

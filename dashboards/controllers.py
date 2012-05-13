@@ -146,7 +146,7 @@ class DashboardsController(object):
             dashboard.active = False
             dashboard.save()
         else:
-            dashboard.remove()
+            dashboard.delete()
         Logger.Info('%s - delete_dashboard_by_id - finished' % __name__)
 
     def get_dashboard_templates(self):

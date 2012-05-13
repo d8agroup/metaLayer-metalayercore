@@ -62,7 +62,7 @@ class Action(BaseAction):
         influence_property = config['content_properties']['added'][0]
         encoded_property = controller._search_encode_property(influence_property)
         return ""\
-               "{{if " + encoded_property + " && " + encoded_property + " != '_none'}}"\
+               "{{if typeof(" + encoded_property + ") !== 'undefined' && " + encoded_property + " != '_none'}}"\
                "    <li class='action_values influence'>"\
                "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Influence:</label>&nbsp;"\
                "        <span style='font-weight:bold;'>"\

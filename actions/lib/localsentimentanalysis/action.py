@@ -38,7 +38,7 @@ class Action(BaseAction):
         sentiment_property = config['content_properties']['added'][0]
         encode_property = controller._search_encode_property(sentiment_property)
         return ""\
-           "{{if " + encode_property + "}}" \
+           "{{if typeof(" + encode_property + ") !== 'undefined' }}" \
            "    <li class='action_values sentiment'>" \
            "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Sentiment:</label>&nbsp;" \
            "        <span style='font-weight:bold;'>" \

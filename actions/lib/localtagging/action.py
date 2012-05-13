@@ -49,18 +49,20 @@ class Action(BaseAction):
         sentiment_property = config['content_properties']['added'][0]
         encoded_property = controller._search_encode_property(sentiment_property)
         return ""\
-               "{{if " + encoded_property + "}}"\
+               "{{if typeof (" + encoded_property + ") !== 'undefined'}}"\
+               "    {{if " + encoded_property + ".length > 0 && " + encoded_property + "[0] != '_none' }}"\
                "    <li class='action_values tags'>"\
                "        <label><img src='" + config['image_small'] + "' style='position:relative;top:5px;left:-2px;width:16px;height:16px;'/>&nbsp;Tags:</label>&nbsp;"\
                "        <span style='font-weight:bold;'>" \
                "            {{each(index, element) " + encoded_property + "}}" \
                "                {{if element != '_none' && index < 5}}"\
                "                    <a class='action_inline_filter' data-facet_name='" + encoded_property + "' data-facet_value='${element}'>${element}</a>"\
-              "                 {{/if}} "\
+               "                {{/if}} "\
                "                {{if index == 6}}...{{/if}}" \
                "            {{/each}}" \
                "        </span>"\
                "    </li>"\
+               "    {{/if}}"\
                "{{/if}}"
 
     def _get_tags(self, config, content_item, tokenizer, tagger):
