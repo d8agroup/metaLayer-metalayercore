@@ -1,3 +1,4 @@
+from random import shuffle
 import time
 import datetime
 
@@ -129,26 +130,15 @@ class VisualizationBase(object):
         return search_start_time, search_end_time
 
     def _generate_colorscheme_config_element(self):
+        colors = ['Blue', 'Green', 'Grey', 'Orange', 'Purple', 'Red' 'Blue - Green', 'Blue - Purple', 'Green - Blue', 'Orange - Red', 'Purple - Red', 'Yellow - Brown']
+        shuffle(colors)
         return {
             'name':'colorscheme',
             'display_name':'Color Scheme',
             'help':'',
             'type':'select',
-            'values':[
-                'Blue',
-                'Green',
-                'Grey',
-                'Orange',
-                'Purple',
-                'Red'
-                'Blue - Green',
-                'Blue - Purple',
-                'Green - Blue',
-                'Orange - Red',
-                'Purple - Red',
-                'Yellow - Brown'
-            ],
-            'value':'Blue - Green'
+            'values': colors,
+            'value':colors[0]
         }
 
     def _generate_colors(self, color_scheme, color_count):

@@ -20,10 +20,10 @@ class Visualization(VisualizationBase):
                     'help':'Region works best with country data while Marker works well with cities or other places',
                     'type':'select',
                     'values':[
+                        'Markers',
                         'Regions',
-                        'Markers'
                     ],
-                    'value':'Regions'
+                    'value':'Markers'
                 },
                 {
                     'name':'focus',
@@ -73,6 +73,7 @@ class Visualization(VisualizationBase):
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
         search_results = search_results_collection[0]
         facets = [f['facets'] for f in search_results['facet_groups'] if f['name'] == config['data_dimensions'][0]['value']['value']][0]
+        data_dimension = config['data_dimensions'][0]['value']['value']
         js = "" \
             "$.getScript\n" \
             "(\n" \
@@ -84,15 +85,23 @@ class Visualization(VisualizationBase):
             "       {\n" \
             "           if(!document.getElementById('v_" + config['id'] + "'))\n" \
             "               return;\n" \
-            "           var data = new google.visualization.DataTable();\n" \
-            "           data.addColumn('string', 'Country');\n" \
-            "           data.addColumn('number', 'Mentions');\n" \
-            "           data.addRows([\n" \
+            "           data_" + config['id'] + " = new google.visualization.DataTable();\n" \
+            "           data_" + config['id'] + ".addColumn('string', 'Country');\n" \
+            "           data_" + config['id'] + ".addColumn('number', 'Mentions');\n" \
+            "           data_" + config['id'] + ".addRows([\n" \
             "               {data_rows}\n" \
             "           ]);\n" \
             "           var options = {options};\n" \
-            "           var chart = new google.visualization.GeoChart(document.getElementById('v_" + config['id'] + "'));\n" \
-            "           chart.draw(data, options);\n" \
+            "           chart_" + config['id'] + " = new google.visualization.GeoChart(document.getElementById('v_" + config['id'] + "'));\n"\
+            "           function select_handler_" + config['id'] + "(){\n"\
+            "               var selected_item = chart_" + config['id'] + ".getSelection()[0];\n"\
+            "               if (selected_item) {\n"\
+            "                    var data = { filter_name:'" + data_dimension + "', filter_value:data_" + config['id'] + ".getValue(selected_item.row, 0) }; \n"\
+            "                    $('#v_" + config['id'] + "').parents('.collection_container').dashboard_collection('apply_search_filter', data);\n"\
+            "               }\n"\
+            "           }\n"\
+            "           google.visualization.events.addListener(chart_" + config['id'] + ", 'select', select_handler_" + config['id'] + ");\n"\
+            "           chart_" + config['id'] + ".draw(data_" + config['id'] + ", options);\n" \
             "       }\n" \
             "   }\n" \
             ");\n"
