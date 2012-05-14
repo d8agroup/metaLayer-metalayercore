@@ -11,6 +11,7 @@ class Visualization(VisualizationBase):
             'unconfigurable_message':'There is no location data available, try adding a location detections action.',
             'instructions':'Maps provide a beautiful way to visualize location based data. You can configure this map '
                            'to focus on a continent and can choose between Country (Regions) or Marker type display.',
+            'filter_message':'Click a marker or region to filter the results above',
             'type':'javascript',
             'configured':False,
             'elements':[
