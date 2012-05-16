@@ -72,6 +72,12 @@ class DataPointController(object):
         Logger.Info('%s - DataPointController.run_data_point - finished' % __name__)
         return content_items
 
+    def get_metadata_filters(self):
+        data_point = DataPointController.LoadDataPoint(self.data_point['type'])
+        config = data_point.get_unconfigured_config()
+        available_filters = config['meta_data'] if 'meta_data' in config else []
+        return available_filters
+
     @classmethod
     def LoadDataPoint(cls, data_point_name):
         Logger.Info('%s - DataPointController.LoadDataPoint - started' % __name__)
@@ -91,3 +97,12 @@ class DataPointController(object):
         help_text = api_element['help']
         Logger.Info('%s - DataPointController.ExtractAPIKeyHelp - finished' % __name__)
         return help_text
+
+    @classmethod
+    def DecodeSearchPropertyDisplayName(cls, search_encoded_name):
+        if not search_encoded_name.startswith('extensions_'):
+            return search_encoded_name
+        search_encoded_name_parts = search_encoded_name.split('_')
+        if len(search_encoded_name_parts) <> 3:
+            return search_encoded_name
+        return search_encoded_name_parts[1]

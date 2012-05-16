@@ -1,0 +1,2 @@
+class DataUploadController(object):
+    pass

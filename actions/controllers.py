@@ -124,7 +124,7 @@ class ActionController(object):
     def get_filters(self):
         action = ActionController.LoadAction(self.action['name'])
         config = action.get_unconfigured_config()
-        available_filters = config['content_properties']['added'] if 'content_properties' in config and 'added' in config['content_properties'] else {}
+        available_filters = config['content_properties']['added'] if 'content_properties' in config and 'added' in config['content_properties'] else []
         return available_filters
 
     def extract_ids_of_content_without_action_applied(self, content_from_solr):

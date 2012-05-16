@@ -15,16 +15,28 @@ class SearchDataPointParser(object):
 
     def parse_data_points(self):
         Logger.Info('%s - SearchDataPointParser.parse_data_points - started' % __name__)
-        data_points_query = 'fq=%s' % '+OR+'.join([self._parse_data_point(dp) for dp in self.data_points])
+        source_queries = '+OR+'.join([self._parse_data_point_as_sources(dp) for dp in self.data_points])
+        metadata_queries = '&'.join([self._parse_data_point_metadata_as_filters(dp) for dp in self.data_points])
+        data_points_query = 'fq=%s&%s' % (source_queries, metadata_queries)
         Logger.Info('%s - SearchDataPointParser.parse_data_points - finished' % __name__)
         return data_points_query
 
-    def _parse_data_point(self, data_point):
+    def _parse_data_point_as_sources(self, data_point):
         Logger.Info('%s - SearchDataPointParser._parse_data_point - started' % __name__)
         dpc = DataPointController(data_point)
         data_point_query = 'source_id:%s' % dpc.generate_configured_guid()
         Logger.Info('%s - SearchDataPointParser._parse_data_point - finished' % __name__)
         return data_point_query
+
+    def _parse_data_point_metadata_as_filters(self, data_point):
+        if not data_point:
+            return ''
+        dpc = DataPointController(data_point)
+        metadata_filters = dpc.get_metadata_filters()
+        if not metadata_filters:
+            return ''
+        data_point_metadata_filters = '&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (f['name'], f['name']) for f in metadata_filters])
+        return data_point_metadata_filters
 
 class SearchQueryParser(object):
     def __init__(self, query_params):
@@ -122,10 +134,19 @@ class SearchResultsParser(object):
         return content_items
 
     def _extract_facets(self, solr_response):
+        def _extract_facet_display_name(facet_name):
+            try1 = ActionController.DecodeSearchPropertyDisplayName(facet_name)
+            if try1 != facet_name:
+                return try1
+            try2 = DataPointController.DecodeSearchPropertyDisplayName(facet_name)
+            if try2 != facet_name:
+                return try2
+            return facet_name
+
         Logger.Info('%s - SearchResultsParser._extract_facets - started' % __name__)
         facet_groups = []
         if solr_response:
-            facet_groups = [{'name':f, 'display_name':ActionController.DecodeSearchPropertyDisplayName(f), 'facets':[]} for f in solr_response['facet_counts']['facet_fields'].keys()]
+            facet_groups = [{'name':f, 'display_name':_extract_facet_display_name(f), 'facets':[]} for f in solr_response['facet_counts']['facet_fields'].keys()]
             for fg in facet_groups:
                 for x in range(0, len(solr_response['facet_counts']['facet_fields'][fg['name']]), 2):
                     if solr_response['facet_counts']['facet_fields'][fg['name']][x] in ['_none']:

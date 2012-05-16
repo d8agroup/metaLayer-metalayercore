@@ -31,6 +31,7 @@ class SearchController(object):
             query_additions = sqap.get_formatted_query_additions()
             search_components.append(query_additions)
         search_url = '%s/select/?%s' % (settings.SOLR_CONFIG['solr_url'], '&'.join(search_components))
+        search_url = search_url.replace('&&', '&').strip('&')
         Logger.Debug('%s - SearchController.run_search_and_return_results - contacting solr with url:%s' % (__name__, search_url))
         response = urlopen(search_url).read()
         response = json.loads(response)

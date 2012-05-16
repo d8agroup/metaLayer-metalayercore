@@ -30,7 +30,12 @@ class DataPoint(BaseDataPoint):
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
                 self._generate_base_search_end_time_config_element()
-            ]
+            ],
+            'meta_data':[{
+                'display_name':'Twitter Username',
+                'name':'extensions_twitterusername_s',
+                'type':'string'
+            }]
         }
 
     def get_content_item_template(self):
@@ -45,7 +50,13 @@ class DataPoint(BaseDataPoint):
                     "<img src='/static/images/thedashboard/data_points/twitter_small.png' style='width:15px;'/>"\
                     "</p>"\
                     "<a href='${link}'><p style='padding-left:60px;' class='tool_tip' title='click to see original post on Twitter+'>${title}</p></a>"\
-                    "<ul style='padding-left:60px;' class='actions'></ul>"\
+                    "<ul style='padding-left:60px;' class='actions'>" \
+                    "    <li class='action_values' style='margin-top:5px;'>" \
+                    "       <label>Twitter Username</label>" \
+                    "       <span style='font-weight:bold;'>" \
+                    "           <a class='action_inline_filter' data-facet_name='extensions_twitterusername_s' data-facet_value='${extensions_twitterusername_s}'>${extensions_twitterusername_s}</a>"\
+                    "       </span>" \
+                    "</ul>"\
                 "</li>"
 
     def generate_configured_guid(self, config):
@@ -94,5 +105,11 @@ class DataPoint(BaseDataPoint):
             'source':{
                 'id':self.generate_configured_guid(config),
                 'display_name':self.generate_configured_display_name(config),
+            },
+            'extensions':{
+                'twitterusername':{
+                    'type':'string',
+                    'value':item['from_user']
+                }
             }
         }
