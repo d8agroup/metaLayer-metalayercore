@@ -44,6 +44,14 @@ class OutputController(object):
         Logger.Info('%s - OutputController.generate_url - finished' % __name__)
         return url
 
+    def generate_html(self, search_results):
+        Logger.Info('%s - OutputController.generate_html - started' % __name__)
+        output_name = self.output['name']
+        output = OutputController.LoadOutput(output_name)
+        html = output.generate_html(self.output, search_results)
+        Logger.Info('%s - OutputController.generate_html - finished' % __name__)
+        return html
+
     def generate_output(self, search_results):
         Logger.Info('%s - OutputController.generate_output - started' % __name__)
         Logger.Debug('%s - OutputController.generate_output - started with search_results:%s' % (__name__, search_results))
@@ -60,3 +68,4 @@ class OutputController(object):
         output_id = self.output['id']
         ShortUrl.Delete(dashboard_id, collection_id, output_id)
         Logger.Info('%s - OutputController.output_removed - finished' % __name__)
+
