@@ -141,7 +141,7 @@ class SearchResultsParser(object):
             try2 = DataPointController.DecodeSearchPropertyDisplayName(facet_name)
             if try2 != facet_name:
                 return try2
-            return facet_name
+
 
         Logger.Info('%s - SearchResultsParser._extract_facets - started' % __name__)
         facet_groups = []
@@ -233,7 +233,8 @@ class SearchResultsParser(object):
         Logger.Info('%s - SearchResultsParser._apply_late_fixes - started' % __name__)
         item['date'] = datetime.fromtimestamp(item['time']).strftime('%Y-%m-%d %H:%M:%S')
         item['pretty_date'] = self._pretty_date(item['time'])
-        item['author_display_name'] = '' if item['author_display_name'] == 'none' else item['author_display_name']
+        if 'author_display_name' in item:
+            item['author_display_name'] = '' if item['author_display_name'] == 'none' else item['author_display_name']
         Logger.Info('%s - SearchResultsParser._apply_late_fixes - finished' % __name__)
         return item
 
