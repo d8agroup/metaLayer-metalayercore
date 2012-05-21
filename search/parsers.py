@@ -35,8 +35,9 @@ class SearchDataPointParser(object):
         metadata_filters = dpc.get_metadata_filters()
         if not metadata_filters:
             return ''
-        data_point_metadata_filters = '&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (f['name'], f['name']) for f in metadata_filters])
-        return data_point_metadata_filters
+        data_point_metadata_filters = '&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (f['name'], f['name']) for f in metadata_filters if f['type'] != 'float'])
+        data_point_metadata_stats = '&'.join(['stats.field=%s' % f['name'] for f in metadata_filters if f['type'] == 'float'])
+        return '&'.join([data_point_metadata_filters, data_point_metadata_stats])
 
 class SearchQueryParser(object):
     def __init__(self, query_params):
