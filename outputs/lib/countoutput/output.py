@@ -28,4 +28,12 @@ class Output(BaseOutput):
                     facets_html += "<li class='more' style='display:none; margin-left:20px;border-bottom:1px dashed #666;padding:5px 0;'><label>%s</label><span style='float:right; font-weight:bold;'>%s</span></li>" % (facet_group['facets'][x]['name'], facet_group['facets'][x]['count'])
             facet_group_html = facet_group_html.replace('[FACET_VALUES]', facets_html)
             html += facet_group_html
+
+        if 'stats' in search_results:
+            for name, value in search_results['stats'].items():
+                stats_group_html = "<li style='margin-top:5px;padding:5px 0;'><label>%s</label><ul class='facet_values'>" % name.split('_')[1]
+                for name, key in [('Minimum Value', 'min'), ('Maximum Value', 'max'), ('Mean Value', 'mean'), ('Standard Deviation', 'stddev')]:
+                    stats_group_html+= "<li style='margin-left:20px;border-bottom:1px dashed #666;padding:5px 0;'><label>%s</label><span style='float:right; font-weight:bold;'>%s</span></li>" % (name, value[key])
+                stats_group_html += '</li>'
+                html += stats_group_html
         return html
