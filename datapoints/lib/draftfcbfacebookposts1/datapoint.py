@@ -29,7 +29,67 @@ class DataPoint(BaseDataPoint):
                     'display_name':'Lifetime Post Organic Reach',
                     'name':'extensions_LifetimePostOrganicReach_f',
                     'type':'float'
-                }
+                },
+                {
+                    'display_name':'Lifetime Post Paid Reach',
+                    'name':'extensions_LifetimePostPaidReach_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Viral Reach',
+                    'name':'extensions_LifetimePostViralReach_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Total Impressions',
+                    'name':'extensions_LifetimePostTotalImpressions_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Organic Impressions',
+                    'name':'extensions_LifetimePostOrganicImpressions_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Paid Impressions',
+                    'name':'extensions_LifetimePostPaidImpressions_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Viral Impressions',
+                    'name':'extensions_LifetimePostViralImpressions_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Engaged Users',
+                    'name':'extensions_LifetimeEngagedUsers_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Stories',
+                    'name':'extensions_LifetimePostStories_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Consumers',
+                    'name':'extensions_LifetimePostConsumers_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Post Consumptions',
+                    'name':'extensions_LifetimePostConsumptions_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Negative Feedback Users',
+                    'name':'extensions_LifetimeNegativeFeedbackUsers_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Lifetime Negative Feedback from Users',
+                    'name':'extensions_LifetimeNegativeFeedbackfromUsers_f',
+                    'type':'float'
+                },
             ]
         }
 
@@ -41,17 +101,101 @@ class DataPoint(BaseDataPoint):
                "<p style='margin-bottom:2px;'>${source_display_name}</p>"\
                "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p>"\
                "<ul style='padding-left:30px;' class='actions'>"\
-               "    <li class='action_values' style='margin-top:5px;'>"\
+               "    <li class='action_values' style='margin-top:5px;'>" \
+               "    <table style='width:100%'>" \
+               "    <tr>" \
+               "    <td style='padding-bottom:2px;'>"\
                "       <label>Lifetime Engaged Users</label>"\
-               "       <span style='font-weight:bold;'>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
                "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimeEngagedUsers_f' data-facet_value='${extensions_LifetimeEngagedUsers_f}'>${parseInt(extensions_LifetimeEngagedUsers_f)}</a>"\
                "       </span>"\
-               "    </li>" \
-               "    <li class='action_values' style='margin-top:5px;'>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
                "       <label>Lifetime Post Organic Reach</label>"\
-               "       <span style='font-weight:bold;'>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
                "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostOrganicReach_f' data-facet_value='${extensions_LifetimePostOrganicReach_f}'>${parseInt(extensions_LifetimePostOrganicReach_f)}</a>"\
                "       </span>"\
+               "    </td>" \
+               "    </tr><tr>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Paid Reach</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostPaidReach_f' data-facet_value='${extensions_LifetimePostPaidReach_f}'>${parseInt(extensions_LifetimePostPaidReach_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Viral Reach</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostViralReach_f' data-facet_value='${extensions_LifetimePostViralReach_f}'>${parseInt(extensions_LifetimePostViralReach_f)}</a>"\
+               "       </span>"\
+               "    </td>"\
+               "    </tr><tr>"\
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Total Impressions</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostTotalImpressions_f' data-facet_value='${extensions_LifetimePostTotalImpressions_f}'>${parseInt(extensions_LifetimePostTotalImpressions_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Organic Impressions</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostOrganicImpressions_f' data-facet_value='${extensions_LifetimePostOrganicImpressions_f}'>${parseInt(extensions_LifetimePostOrganicImpressions_f)}</a>"\
+               "       </span>"\
+               "    </td>"\
+               "    </tr><tr>"\
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Paid Impressions</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostPaidImpressions_f' data-facet_value='${extensions_LifetimePostPaidImpressions_f}'>${parseInt(extensions_LifetimePostPaidImpressions_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Viral Impressions</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostViralImpressions_f' data-facet_value='${extensions_LifetimePostViralImpressions_f}'>${parseInt(extensions_LifetimePostViralImpressions_f)}</a>"\
+               "       </span>"\
+               "    </td>"\
+               "    </tr><tr>"\
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Engaged Users</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimeEngagedUsers_f' data-facet_value='${extensions_LifetimeEngagedUsers_f}'>${parseInt(extensions_LifetimeEngagedUsers_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Stories</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostStories_f' data-facet_value='${extensions_LifetimePostStories_f}'>${parseInt(extensions_LifetimePostStories_f)}</a>"\
+               "       </span>"\
+               "    </td>"\
+               "    </tr><tr>"\
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Consumers</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostConsumers_f' data-facet_value='${extensions_LifetimePostConsumers_f}'>${parseInt(extensions_LifetimePostConsumers_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Post Consumptions</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimePostConsumptions_f' data-facet_value='${extensions_LifetimePostConsumptions_f}'>${parseInt(extensions_LifetimePostConsumptions_f)}</a>"\
+               "       </span>"\
+               "    </td>"\
+               "    </tr><tr>"\
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Negative Feedback Users</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimeNegativeFeedbackUsers_f' data-facet_value='${extensions_LifetimeNegativeFeedbackUsers_f}'>${parseInt(extensions_LifetimeNegativeFeedbackUsers_f)}</a>"\
+               "       </span>"\
+               "    </td>" \
+               "    <td style='padding-bottom:2px;'>"\
+               "       <label>Lifetime Negative Feedback from Users</label>"\
+               "       <span style='float:right;padding-right:10px;font-weight:bold;'>"\
+               "           <a class='action_inline_range_filter' data-facet_name='extensions_LifetimeNegativeFeedbackfromUsers_f' data-facet_value='${extensions_LifetimeNegativeFeedbackfromUsers_f}'>${parseInt(extensions_LifetimeNegativeFeedbackfromUsers_f)}</a>"\
+               "       </span>" \
+               "    </td>" \
+               "    </tr>" \
+               "    </table>"\
                "    </li>" \
                "</ul>"\
                "</li>"
