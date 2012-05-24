@@ -36,7 +36,7 @@ class DataPoint(BaseDataPoint):
     def get_content_item_template(self):
         return "" \
             "<li style='width:100%;'>" \
-                "<img src='/static/images/lib/yoo/feed_2424.png' style='width:20px; padding-right:10px;' align='left'/>"\
+                "<img src='/static/images/thedashboard/data_points/feed_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
                 "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
                 "<p style='margin-bottom:2px;'>${source_display_name}</p>" \
                 "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p>" \
