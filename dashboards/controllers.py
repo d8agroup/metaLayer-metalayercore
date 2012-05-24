@@ -3,7 +3,7 @@ from metalayercore.dashboards.models import Dashboard, DashboardTemplate
 from logger import Logger
 from math import ceil
 from django.conf import settings
-import constants
+
 
 class DashboardsController(object):
     def __init__(self, user):
@@ -56,12 +56,12 @@ class DashboardsController(object):
         try:
             page = int(page) if page is not None else 1
         except ValueError:
-            errors.append(constants.PAGE_NUMBER_INVALID)
+            errors.append('Invalid Page Number')
         
         try:
             num_per_page = int(num_per_page) if num_per_page is not None else settings.MAX_INSIGHTS_PER_PAGE
         except ValueError:
-            errors.append(constants.NUM_PER_PAGE_INVALID)
+            errors.append('Invalid numbers per page')
         
         if len(errors) > 0:
             return False, errors, None, None
