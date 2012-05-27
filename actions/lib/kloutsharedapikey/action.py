@@ -46,7 +46,7 @@ class Action(BaseAction):
         user_names = [x['username'] for x in return_values if not x['influence']]
         x = 0
         while x < len(user_names):
-            self._call_api(user_names[x:x+self.api_limit], return_values)
+            self._call_api(config, user_names[x:x+self.api_limit], return_values)
             x += self.api_limit
 
         return [
@@ -73,8 +73,9 @@ class Action(BaseAction):
                "    </li>"\
                "{{/if}}"
 
-    def _call_api(self, user_names, return_values):
-        query_data = {'users':','.join(user_names), 'key':'2qus3q26rfnz2gsefxb2czg4'}
+    def _call_api(self, config, user_names, return_values):
+        api_key = '2qus3q26rfnz2gsefxb2czg4' if not config['elements'] else config['elements'][0]['value']
+        query_data = {'users':','.join(user_names), 'key': api_key}
         query_data = urllib.urlencode(query_data)
         url = 'http://api.klout.com/1/klout.json?%s' % query_data
         try:

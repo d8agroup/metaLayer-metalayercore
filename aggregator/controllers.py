@@ -19,6 +19,8 @@ class AggregationController(object):
             self.users = UserController.GetAllUsers(user_filter)
         except ImportError:
             self.users = User.objects.all()
+            if user_filter and 'usernames' in user_filter:
+                self.users = [u for u in self.users if u.username in user_filter['usernames']]
         Logger.Info('%s - AggregationController.__init__ - finished' % __name__)
 
     def aggregate(self):
