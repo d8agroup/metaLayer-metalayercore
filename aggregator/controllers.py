@@ -25,22 +25,34 @@ class AggregationController(object):
 
     def aggregate(self):
         Logger.Info('%s - AggregationController.aggregate - stated' % __name__)
-        finished = 0
-        def producer(q, users):
-            for user in users:
-                thread = _UserThread(user)
-                thread.start()
-                q.put(thread, True)
-        def consumer(q, users_count):
-            while finished <= users_count:
-                thread = q.get(True)
-                thread.join()
-                finished += 1
-        q = Queue(1)
-        producer_thread = threading.Thread(target=producer, args=(q, self.users))
-        consumer_thread = threading.Thread(target=consumer, args=(q, len(self.users)))
-        producer_thread.start()
-        consumer_thread.start()
+        for user in self.users:
+            all_data_points_with_actions = []
+            dc = DashboardsController(user)
+            for dashboard in dc.get_live_dashboard():
+                for collection in dashboard['collections']:
+                    actions = collection['actions']
+                    for data_point in collection['data_points']:
+                        all_data_points_with_actions.append({'data_point':data_point, 'actions':actions})
+            if all_data_points_with_actions:
+                for data_point_with_actions in all_data_points_with_actions:
+                    run_aggregator_for_data_point(data_point_with_actions['data_point'], data_point_with_actions['actions'])
+        #Threading removed
+#        finished = 0
+#        def producer(q, users):
+#            for user in users:
+#                thread = _UserThread(user)
+#                thread.start()
+#                q.put(thread, True)
+#        def consumer(q, users_count):
+#            while finished <= users_count:
+#                thread = q.get(True)
+#                thread.join()
+#                finished += 1
+#        q = Queue(1)
+#        producer_thread = threading.Thread(target=producer, args=(q, self.users))
+#        consumer_thread = threading.Thread(target=consumer, args=(q, len(self.users)))
+#        producer_thread.start()
+#        consumer_thread.start()
         Logger.Info('%s - AggregationController.aggregate - finished' % __name__)
 
     @classmethod
