@@ -25,14 +25,22 @@ class AggregationController(object):
 
     def aggregate(self):
         Logger.Info('%s - AggregationController.aggregate - stated' % __name__)
+        finished = 0
         def producer(q, users):
             for user in users:
                 thread = _UserThread(user)
                 thread.start()
                 q.put(thread, True)
+        def consumer(q, users_count):
+            while finished <= users_count:
+                thread = q.get(True)
+                thread.join()
+                finished += 1
         q = Queue(1)
         producer_thread = threading.Thread(target=producer, args=(q, self.users))
+        consumer_thread = threading.Thread(target=consumer, args=(q, len(self.users)))
         producer_thread.start()
+        consumer_thread.start()
         Logger.Info('%s - AggregationController.aggregate - finished' % __name__)
 
     @classmethod
@@ -79,11 +87,17 @@ class _UserThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        finished = 0
         def producer(q, data_points_with_actions):
             for data_point_with_actions in data_points_with_actions:
                 thread = _DataPointThread(data_point_with_actions)
                 thread.start()
                 q.put(thread, True)
+        def consumer(q, data_points_count):
+            while finished <= data_points_count:
+                thread = q.get(True)
+                thread.join()
+                finished += 1
         Logger.Info('%s - AggregationController._UserThread.run - started' % __name__)
         Logger.Debug('%s - AggregationController._UserThread.run - started with user: %s' % (__name__, self.user))
         all_data_points_with_actions = []
@@ -96,7 +110,9 @@ class _UserThread(threading.Thread):
         if all_data_points_with_actions:
             q = Queue(1)
             producer_thread = threading.Thread(target=producer, args=(q, all_data_points_with_actions))
+            consumer_thread = threading.Thread(target=consumer, args=(q, len(all_data_points_with_actions)))
             producer_thread.start()
+            consumer_thread.start()
         Logger.Info('%s - AggregationController._UserThread.run - finished' % __name__)
 
 class _DataPointThread(threading.Thread):
