@@ -2,17 +2,17 @@ from django.views.decorators.csrf import csrf_exempt
 from metalayercore.aggregator.controllers import AggregationController, apply_actions_and_post_to_solr
 from django.utils import simplejson as json
 from logger import Logger
-from utils import  JSONResponse
+from utils import  JSONResponse, async
 
-#@async
+@async
 def run_all_dashboards(request):
     Logger.Info('%s - run_all_dashboards - started' % __name__)
     user_filter = request.GET.get('user_filter')
     Logger.Debug('%s - run_all_dashboards - running with user_filter: %s' % (__name__, user_filter))
+    yield JSONResponse({'status':'success'})
     aggregator = AggregationController(user_filter)
     aggregator.aggregate()
     Logger.Info('%s - run_all_dashboards - finished' % __name__)
-    return JSONResponse({'status':'success'})
 
 @csrf_exempt
 def post_content(request):
