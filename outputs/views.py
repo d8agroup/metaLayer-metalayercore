@@ -40,13 +40,28 @@ def generate_output(request, url_identifier):
         Logger.Error('%s - generate_output - error - output_id:%s not found' % (__name__, output_id))
         Logger.Info('%s - generate_output - finished' % __name__)
         raise Http404
+
+    search_query_replacements = []
+    limit = request.GET.get('limit')
+    if limit:
+        try:
+            limit = int(limit)
+            search_query_replacements.append({
+                'pattern':r'rows=[0-9]+',
+                'replacement':'rows=%i' % limit
+            })
+        except ValueError:
+            pass
+
     sc = SearchController(collection)
-    search_results = sc.run_search_and_return_results()
+    search_results = sc.run_search_and_return_results(search_query_replacements=search_query_replacements)
     oc = OutputController(output)
     content, content_type = oc.generate_output(search_results)
     Logger.Info('%s - generate_output - finished' % __name__)
     response = HttpResponse(content=content, content_type=content_type)
     if 'csv' in content_type:
         response['Content-Disposition'] = 'attachment; filename=metalayer_output.csv'
+    if 'ms-excel' in content_type:
+        response['Content-Disposition'] = 'attachment; filename=metalayer_output.xlsx'
     response['Access-Control-Allow-Origin'] = '*'
     return response

@@ -1,3 +1,4 @@
+import re
 from urllib2 import urlopen
 from django.conf import settings
 from logger import Logger
@@ -11,7 +12,7 @@ class SearchController(object):
         self.configuration = configuration
         Logger.Info('%s - SearchController.__init__ - finished' % __name__)
 
-    def run_search_and_return_results(self, search_query_additions=None):
+    def run_search_and_return_results(self, search_query_additions=None, search_query_replacements=None):
         Logger.Info('%s - SearchController.run_search_and_return_results - started' % __name__)
         data_points = self.configuration['data_points']
         sdpp = SearchDataPointParser(data_points)
@@ -32,6 +33,9 @@ class SearchController(object):
             search_components.append(query_additions)
         search_url = '%s/select/?%s' % (settings.SOLR_CONFIG['solr_url'], '&'.join(search_components))
         search_url = search_url.replace('&&', '&').strip('&')
+        if search_query_replacements:
+            for replacement in search_query_replacements:
+                search_url = re.sub(replacement['pattern'], replacement['replacement'], search_url)
         Logger.Debug('%s - SearchController.run_search_and_return_results - contacting solr with url:%s' % (__name__, search_url))
         response = urlopen(search_url).read()
         response = json.loads(response)
