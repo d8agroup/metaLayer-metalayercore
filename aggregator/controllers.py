@@ -56,6 +56,19 @@ class AggregationController(object):
         Logger.Info('%s - AggregationController.aggregate - finished' % __name__)
 
     @classmethod
+    def AggregateUploadedContent(cls, content, actions, skip_duplicate_check=False):
+        try:
+            if skip_duplicate_check:
+                apply_actions_and_post_to_solr(actions, content, False)
+            else:
+                apply_actions_and_post_to_solr(actions, content)
+        except Exception, e:
+            Logger.Error('%s - post_content - error posing content' % __name__)
+            Logger.Debug('%s - post_content - error posing content: %s' % (__name__, e))
+            return False
+        return True
+
+    @classmethod
     def AggregateSingleDataPoint(cls, data_point, actions=None):
         Logger.Info('%s - AggregationController.AggregateSingleDataPoint - started' % __name__)
         Logger.Debug('%s - AggregationController.AggregateSingleDataPoint - started with data_point: %s and actions:%s' % (__name__, data_point, actions))
