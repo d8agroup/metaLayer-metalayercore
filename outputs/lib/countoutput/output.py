@@ -31,6 +31,8 @@ class Output(BaseOutput):
 
         if 'stats' in search_results:
             for name, value in search_results['stats'].items():
+                if not name or not value:
+                    continue
                 stats_group_html = "<li style='margin-top:5px;padding:5px 0;'><label>%s</label><ul class='facet_values'>" % name.split('_')[1]
                 for name, key in [('Minimum Value', 'min'), ('Maximum Value', 'max'), ('Mean Value', 'mean'), ('Standard Deviation', 'stddev')]:
                     stats_group_html+= "<li style='margin-left:20px;border-bottom:1px dashed #666;padding:5px 0;'><label>%s</label><span style='float:right; font-weight:bold;'>%s</span></li>" % (name, value[key])

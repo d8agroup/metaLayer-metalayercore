@@ -73,6 +73,8 @@ class DataPointController(object):
         return content_items
 
     def get_metadata_filters(self):
+        if self.data_point and 'meta_data' in self.data_point:
+            return self.data_point['meta_data']
         data_point = DataPointController.LoadDataPoint(self.data_point['type'])
         config = data_point.get_unconfigured_config()
         available_filters = config['meta_data'] if 'meta_data' in config else []

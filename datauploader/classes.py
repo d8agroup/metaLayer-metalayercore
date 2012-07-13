@@ -23,6 +23,7 @@ class DataUploadError(object):
         101:"File size too large",
         200:"File format does not match extension and metadata",
         201:"The first row of any tabular data must contain header labels",
+        202:"The file is empty",
     }
 
     def __init__(self, scope, code, debug_info=None):
