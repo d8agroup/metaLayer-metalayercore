@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from controllers import DataUploadController
-from utils import serialize_to_json
+from utils import serialize_to_json, JSONResponse
 
 def return_uploaders_that_can_parse_file(request):
     file = request.FILES['data_upload']
@@ -23,3 +23,20 @@ def process_file_with_datauploader(request):
     if not errors:
         duc.clean_up()
     return HttpResponse(serialize_to_json({'data_point':data_point, 'errors':errors or []}))
+
+def get_content_item_template(request, datauploader_name):
+    """
+    Return the HTML template associated with the provided datauploader_name
+
+    Arguments
+    ---------
+    datauploader_name (string): the name of the DataUploader to call the HTML template from
+
+    Returns
+    -------
+    JSONResponse({template:string(HTML), datauploader_name:string})
+    """
+    datauploader = DataUploadController.GetUploaderByName(datauploader_name)
+    template = datauploader.get_content_item_template() if datauploader else ''
+    return JSONResponse({'template':template, 'datauploader_name':datauploader_name} )
+

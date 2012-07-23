@@ -10,7 +10,29 @@ import re
 import os
 
 class DataUploadController(object):
+    """
+    DataUploadController acts as the main entry point to the DataUploaders package
+    """
     def __init__(self, file_id, uploaded_file=None,  data_point_type=None, datauploader_name=None):
+        """
+        DataUploadController instance constructor
+
+        Notes
+        -----
+        When constructed with a raw uploaded file, this controller should be instantiated with: file_id and uploaded_file
+        When constructed with datauploader choice, this controller should be instantiated with: file_id, data_point_type and datauploader_name
+
+        Arguments
+        ---------
+        file_id (string, guid): the unique id that applies to this uploaded file
+        uploaded_file (file) optional: the uploaded file object taken from POST['FILE'] this should be a django UploadedFile object
+        data_point_type (string): The type of the data point that was used to upload this file
+        datauploader_name (string): The name of the datauploader chosen to parse the file
+
+        Returns
+        -------
+        Instance of DataUploadController
+        """
         self.file_id = file_id
         if uploaded_file:
             self.uploaded_file = uploaded_file
@@ -21,6 +43,17 @@ class DataUploadController(object):
 
     @classmethod
     def AllAvailableUploaders(cls):
+        """
+        Class Method: Return the configuration for all DataUploaders available
+
+        Returns
+        -------
+        List of dict config for all matching DataUploader instances
+
+        Raises
+        ------
+        AttributeError: if the package and/or module structure on disk is corrupt
+        """
         import metalayercore.datauploader.lib as data_uploader_lib
         path = os.path.dirname(data_uploader_lib.__file__)
         data_uploader_directories = [d for d in os.listdir(path) if not re.search(r'\.', d)]
@@ -29,11 +62,34 @@ class DataUploadController(object):
 
     @classmethod
     def GetUploaderByName(cls, datauploader_name):
+        """
+        Class Method: Returns an instance of the DataUploader who matches the datauploader_name argument
+
+        Arguments
+        ---------
+        datauploader_name (string): the name of the datauploader to be instantiated
+
+        Returns
+        -------
+        Instance of DataUploader who's name matches the datauploader_name or None if no DataUploader has that name
+
+        Raises
+        ------
+        AttributeError: if the package and/or module structure on disk is corrupt
+        """
         all_uploaders = cls.AllAvailableUploaders()
         candidate_uploaders = [u for u in all_uploaders if u.get_display_config()['name'] == datauploader_name]
         return candidate_uploaders[0] if candidate_uploaders and len(candidate_uploaders) == 1 else None
 
     def is_valid(self):
+        """
+        Run basic file checking to ensure the file is a file and that it is less than 10mb in size
+
+        Returns
+        -------
+        Boolean: File passed basic test
+        List(strings): any errors raised
+        """
         errors = []
         try:
             uploaded_file_size = self.uploaded_file.size
@@ -44,6 +100,17 @@ class DataUploadController(object):
         return bool(errors), errors
 
     def list_available_uploaders(self):
+        """
+        Return the configuration of all DataUploaders who can parse the subject file based on its metadata
+
+        Returns
+        -------
+        List[dict]: List of the configuration for all DataUploaders that can parse the file based on its metadata
+
+        Raises
+        ------
+        AttributeError: if the package and/or module structure on disk is corrupt
+        """
         all_uploaders = DataUploadController.AllAvailableUploaders()
         file_content_type = self.uploaded_file.content_type
         file_extension = self.uploaded_file.name.split('.')[-1]
@@ -52,6 +119,9 @@ class DataUploadController(object):
         return available_uploaders_config
 
     def run_datauploader(self):
+        """
+        Run the selected DataUploader against the persisted file
+        """
         upload_record = DataUploadRecord(file_id=self.file_id, created=datetime.datetime.now())
         upload_record.record_progress(DataUploadProgress.Create('start'))
         datauploader = DataUploadController.GetUploaderByName(self.datauploader_name)
@@ -72,7 +142,7 @@ class DataUploadController(object):
         source_name = 'UserUploadSource_%s' % source_id
         for item in aggregation_data:
             item['source'] = { 'display_name':source_name, 'id':source_id }
-            item['channel'] = { 'type':self.data_point_config['type'], 'sub_type':self.data_point_config['sub_type'], 'id':channel_id }
+            item['channel'] = { 'type':'customdata', 'sub_type':datauploader.get_display_config()['name'], 'id':channel_id }
         times_list = [c['time'] for c in aggregation_data if 'time' in c]
         start_time = int(min(times_list)) if times_list else None
         end_time = int(max(times_list)) if times_list else None

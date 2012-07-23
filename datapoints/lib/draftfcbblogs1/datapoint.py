@@ -1,7 +1,7 @@
+from metalayercore.datapoints.classes import BaseDataPoint
 from hashlib import md5
 import datetime
 import time
-from metalayercore.datapoints.classes import BaseDataPoint
 
 class DataPoint(BaseDataPoint):
     def get_unconfigured_config(self):

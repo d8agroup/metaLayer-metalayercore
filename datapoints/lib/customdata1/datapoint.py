@@ -35,15 +35,7 @@ class DataPoint(BaseDataPoint):
         }
 
     def get_content_item_template(self):
-        return ""\
-               "<li style='width:100%;'>"\
-               "    <img src='/static/images/thedashboard/data_points/upload_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
-               "    <p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
-               "    <p style='padding-left:30px;'>{{html $data.text}}</p>"\
-               "    <ul style='padding-left:30px; margin-top:5px' class='actions'>" \
-               "        {{html render_dynamic_content_item_actions_and_extensions($data)}}"\
-               "    </ul>"\
-               "</li>"
+        return "CONTENT ITEM TEMPLATES FOR USER UPLOADED CONTENT ARE PROVIDED BY THE DATAUPLOADER TYPE"
 
     def generate_configured_guid(self, config):
         return [e for e in config['elements'] if e['name'] == 'channel_id'][0]['value']
