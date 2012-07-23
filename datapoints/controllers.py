@@ -3,7 +3,22 @@ from logger import Logger
 from utils import my_import
 
 class DataPointController(object):
+    """
+    DataPointController acts as the main entry point to the DataPoints package.
+    """
     def __init__(self, data_point):
+        """
+        DataPointController instance constructor
+
+        Arguments
+        ---------
+        data_point (dict): the configuration dictionary taken from the result of calling::
+            data_point_instance.get_unconfigured_config()
+
+        Returns
+        -------
+        Instance of DataPointController
+        """
         Logger.Info('%s - DataPointController.__init__ - started' % __name__)
         Logger.Debug('%s - DataPointController.__init__ - started with data_point:%s' % (__name__, data_point))
         self.data_point = data_point
@@ -11,6 +26,28 @@ class DataPointController(object):
 
     @classmethod
     def GetAllForTemplateOptions(cls, options):
+        """
+        Class Method: Return the configuration for all DataPoints to be rendered in a dashboard
+
+        Notes
+        -----
+        This method currently relies on the presence of the following setting::
+            settings.DATA_POINTS_CONFIG['enabled_data_points']]
+
+        This setting should be a list of *names* of all DataPoints to to be included in new dashboards
+
+        Arguments
+        ---------
+        options: Not currently supported
+
+        Returns
+        -------
+        List of dict config for all matching DataPoint instances
+
+        Raises
+        ------
+        AttributeError: if any of the configured datapoints can not be loaded
+        """
         #TODO: need to take account of options
         Logger.Info('%s - DataPointController.GetAllForTemplateOptions - started' % __name__)
         Logger.Debug('%s - DataPointController.GetAllForTemplateOptions - started with options:%s' % (__name__, options))
@@ -19,6 +56,18 @@ class DataPointController(object):
         return data_points
 
     def is_valid(self):
+        """
+        Calls the validate_config method on the DataPoint of which this DataPointController is the subject
+
+        Returns
+        -------
+        Boolean, True if the configuration this DataPointController was constructed with is deemed to be valid by the
+        DataPoint.
+
+        Raises
+        ------
+        AttributeError: if the name of the data point that is the subject of this controller can not be loaded
+        """
         Logger.Info('%s - DataPointController.is_valid - started' % __name__)
         type = self.data_point['type']
         data_point = DataPointController.LoadDataPoint(type)
@@ -27,6 +76,17 @@ class DataPointController(object):
         return passed, errors
 
     def get_configured_display_name(self):
+        """
+        Return the fully configured display name for the data point that this controller is the subject of
+
+        Returns
+        -------
+        String: the fully configured display name of the data point that is the subject of this controller
+
+        Raises
+        ------
+        AttributeError: if the name of the data point that is the subject of this controller can not be loaded
+        """
         Logger.Info('%s - DataPointController.get_configured_display_name - started' % __name__)
         type = self.data_point['type']
         data_point = DataPointController.LoadDataPoint(type)

@@ -28,8 +28,8 @@ class DataPoint(BaseDataPoint):
                     'help':'Files are limited to 100mb, must be csv format and have headers in the first row',
                     'type':'file_upload'
                 },
-                self._generate_base_search_start_time_config_element(),
-                self._generate_base_search_end_time_config_element()
+#                self._generate_base_search_start_time_config_element(),
+#                self._generate_base_search_end_time_config_element()
             ],
             'meta_data':[]
         }

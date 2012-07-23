@@ -1,17 +1,14 @@
-import csv
-import time
-from dateutil import parser as date_parser
-from metalayercore.datauploader.classes import BaseDataUploader, DataUploadError
-from hashlib import md5
-from random import randint
+from metalayercore.datauploader.classes import BaseDataUploader
 from chardet.universaldetector import UniversalDetector
+from dateutil import parser as date_parser
+from random import randint
+from hashlib import md5
+import time
 import csv
 
 class DataUploader(BaseDataUploader):
     class UnicodeCsvReader(object):
-        """
-        http://stackoverflow.com/questions/1846135/python-csv-library-with-unicode-utf-8-support-that-just-works
-        """
+        # http://stackoverflow.com/questions/1846135/python-csv-library-with-unicode-utf-8-support-that-just-works
         chunk_size = 4096
         def __init__(self, f, encoding=None, **kwargs):
             if not encoding:
@@ -27,6 +24,7 @@ class DataUploader(BaseDataUploader):
                 chardet_detector.close()
                 chardet_encoding = chardet_detector.result['encoding']
                 encoding = chardet_encoding or 'utf-8'
+                f.seek(0)
             self.csv_reader = csv.reader(f, **kwargs)
             self.encoding = encoding
 
@@ -48,6 +46,14 @@ class DataUploader(BaseDataUploader):
             csv.DictReader.__init__(self, f, fieldnames=fieldnames, **kwds)
             self.reader = DataUploader.UnicodeCsvReader(f, encoding=encoding, **kwds)
 
+    def get_display_config(self):
+        return {
+            'name':'basecsvdatauploader',
+            'display_name':'Generic Tabular Data Uploader',
+            'info_message':'The data uploader will take data stored in tabular format.',
+            'image_medium':'/static/images/thedashboard/datauploaders/table_medium.png',
+        }
+
     def can_parse_based_on_metadata(self, content_type, file_extension):
         if content_type not in ['text/csv']:
             return False
@@ -56,22 +62,39 @@ class DataUploader(BaseDataUploader):
         return True
 
     def can_parse_based_on_test_pass(self, file):
+        def _first_row_is_header(rows):
+            if max([len(r) for r in rows]) > len(rows[0]): #No row is longer
+                return False, ['At least one other row is longer than the header row']
+            if len([c for c in rows[0] if not isinstance(c, basestring)]): #all are strings
+                return False, ['At least one header value is not a string']
+            if len([c for c in rows[0] if not c]):
+                return False, ['At least one header value is empty']
+            passed = failed = 0.0
+            for x in range(1, len(rows)):
+                for y in range(len(rows[0])):
+                    try:
+                        column_value = rows[x][y]
+                    except IndexError:
+                        continue
+                    if rows[0][y] == column_value: failed += 1
+                    else: passed += 1
+            if not passed or failed/passed > 0.10:
+                return False, ['The header names must be unique throughout the column they represent']
+            return True, []
+
         try:
             file_as_csv = DataUploader.UnicodeCsvReader(file)
             rows = [r for r in file_as_csv]
         except Exception as e:
-            return False, [DataUploadError('format', 200)]
-
+            return False, ['The file you uploaded is not a CSV file with comma field delimiters and double quote string quoting']
         if not rows:
-            return False, [DataUploadError('format', 202)]
-
-        first_row_is_header, errors = self._first_row_is_header(rows)
+            return False, ['The file you uploaded is empty.']
+        first_row_is_header, errors = _first_row_is_header(rows)
         if not first_row_is_header:
-            return False, [DataUploadError('format', 201, debug_info=errors)]
-
+            return False, ['The first row did not contain column headers:'] + errors
         return True, None
 
-    def read_file_and_return_errors(self, file):
+    def read_file_and_return_content(self, file):
         def _clean_row(row):
             common_none_values = ['none', 'n/a', 'n/d', 'null']
             for column_count in range(len(row)):
@@ -80,20 +103,19 @@ class DataUploader(BaseDataUploader):
                         row[column_count] = None
             return row
 
-
         def _is_datetime_column(content_rows, column):
-#            def _can_be_date_or_time(value):
-#                try:
-#                    date_parser.parse(value)
-#                except ValueError: #string format not recognized
-#                    return False
-#                except AttributeError: #not a string
-#                    return False
-#                return True
-#            if not len([c for c in header_row if c['type'] == 'date']): #if no date columns found yet
-#                number_that_can_be_date = len([r[column] for r in content_rows if _can_be_date_or_time(r[column])])
-#                if number_that_can_be_date == len(content_rows):
-#                    return True
+            def _can_be_date_or_time(value):
+                try:
+                    date_parser.parse(value)
+                except ValueError: #string format not recognized
+                    return False
+                except AttributeError: #not a string
+                    return False
+                return True
+            if not len([c for c in header_row if c['type'] == 'date']): #if no date columns found yet
+                number_that_can_be_date = len([r[column] for r in content_rows if _can_be_date_or_time(r[column])])
+                if number_that_can_be_date == len(content_rows):
+                    return True
             return False
 
         def _is_float_facet_column(content_rows, column):
@@ -211,34 +233,3 @@ class DataUploader(BaseDataUploader):
                     })
 
         return content, extensions, None
-
-    def _first_row_is_header(self, rows):
-        #No row is longer
-        if max([len(r) for r in rows]) > len(rows[0]):
-            return False, ['At least one other row is longer than the header row']
-
-        #all are strings
-        if any([c for c in rows[0] if not isinstance(c, basestring)]):
-            return False, ['At least one header value is not a string']
-
-        #each are unique 10% excepted fail rate
-        passed = 0.0
-        failed = 0.0
-        for x in range(1, len(rows)):
-            for y in range(len(rows[0])):
-                column_title = rows[0][y]
-                try:
-                    column_value = rows[x][y]
-                except IndexError:
-                    continue
-                if column_title == column_value:
-                    failed += 1
-                else:
-                    passed += 1
-        if not passed or failed/passed > 0.10:
-            return False, ['The header names must be unique throughout the column they represent']
-
-        return True, []
-
-
-
