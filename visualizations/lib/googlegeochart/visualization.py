@@ -59,7 +59,7 @@ class Visualization(VisualizationBase):
                 {
                     'name':'locations',
                     'display_name':'Location',
-                    'type':'location_string',
+                    'type':['location_string'],
                     'help':''
                 }
             ]

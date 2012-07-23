@@ -9,6 +9,13 @@ class Visualization(VisualizationBase):
     steps_backwards = 5
 
     def get_unconfigured_config(self):
+        """
+        Return the dict configuration needed to add the data point to the UI
+
+        Returns
+        -------
+        dict: the configuration needed to use this data point
+        """
         return {
             'name':'googlebarchart',
             'display_name_short':'Bar',
@@ -26,7 +33,7 @@ class Visualization(VisualizationBase):
                     'name':'time',
                     'display_name':'Visualize over time?',
                     'help':'',
-                    'type':'select',
+                    'type':'hidden',
                     'values':[
                         'No - Show totals only',
                         'Yes - Break down by time'
@@ -57,49 +64,26 @@ class Visualization(VisualizationBase):
                 {
                     'name':'category1',
                     'display_name':'Bars',
-                    'type':'string',
+                    'type':['string', 'float'],
                     'help':''
                 }
             ]
         }
 
     def generate_search_query_data(self, config, search_configuration):
-        time_variable = [e for e in config['elements'] if e['name'] == 'time'][0]['value']
         return_data = []
-        if time_variable == 'No - Show totals only':
-            for dimension in config['data_dimensions']:
-                return_data.append([{
-                    'name':dimension['value']['value'],
-                    'type':'basic_facet',
-                    'limit':10
-                }])
-        else:
-            start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-            time_interval = int((end_time - start_time) / self.steps_backwards)
-            for s in range(start_time, end_time, time_interval):
-                this_search = []
-                for dimension in config['data_dimensions']:
-                    this_search.append({
-                        'name':dimension['value']['value'],
-                        'type':'basic_facet'
-                    })
-                this_search.append({
-                    'name':'time',
-                    'range':{'start':s, 'end':(s + time_interval - 1)},
-                    'type':'range_query'
-                })
-                return_data.append(this_search)
-        return return_data
+        dimensions_of_type_string = [d for d in config['data_dimensions'] if d['value']['type'] == 'string']
+        for dimension in dimensions_of_type_string:
+            return_data.append([{
+                'name':dimension['value']['value'],
+                'type':'basic_facet',
+                'limit':10
+            }])
+        return return_data or [{}]
 
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
-        time_variable = [e for e in config['elements'] if e['name'] == 'time'][0]['value']
-        if time_variable == 'No - Show totals only':
-            data_columns, data_rows = self._generate_data_without_time(config, search_results_collection, search_configuration)
-            legend = False
-        else:
-            data_columns, data_rows = self._generate_data_with_time(config, search_results_collection, search_configuration)
-            legend = True
-
+        data_columns, data_rows = self._generate_data_without_time(config, search_results_collection, search_configuration)
+        legend = False
         number_of_colors = len(data_columns) - 1
         data_columns = '\n'.join(["data_%s.addColumn('%s', '%s');" % (config['id'], t['type'], t['name']) for t in data_columns])
         data_rows = json.dumps(data_rows)
@@ -176,9 +160,16 @@ class Visualization(VisualizationBase):
     def _generate_data_without_time(self, config, search_results_collection, search_configuration):
         search_result = search_results_collection[0]
         data_dimensions_value = config['data_dimensions'][0]['value']
-        facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimensions_value['value']][0]['facets']
+        data_rows = []
         data_columns = [{'type':'string', 'name':data_dimensions_value['name']}, {'type':'number', 'name':'count'}]
-        data_rows = [[f['name'], f['count']] for f in facets]
+        if data_dimensions_value['type'] == 'string':
+            facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimensions_value['value']][0]['facets']
+            data_rows = [[f['name'], f['count']] for f in facets]
+        elif data_dimensions_value['type'] == 'float':
+            stats = [search_result['stats'][stats_group] for stats_group in search_result['stats'].keys() if stats_group == data_dimensions_value['value']][0]
+            data_rows.append(['Maximum', stats['max']])
+            data_rows.append(['Minimum', stats['min']])
+            data_rows.append(['Average', stats['mean']])
         return data_columns, data_rows
 
     def _generate_data_with_time(self, config, search_results_collection, search_configuration):

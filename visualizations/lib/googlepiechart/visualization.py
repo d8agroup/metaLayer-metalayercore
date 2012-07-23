@@ -43,7 +43,7 @@ class Visualization(VisualizationBase):
                 {
                     'name':'category1',
                     'display_name':'Pie Slices',
-                    'type':'string',
+                    'type':['string'],
                     'help':''
                 }
             ]
