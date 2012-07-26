@@ -11,6 +11,7 @@ class DataUploader(basecsvdatauploader.DataUploader):
             'display_name':'Sysomos Twitter Data',
             'info_message':'Twitter search data exported from Sysomos in CSV format.',
             'image_medium':'/static/images/thedashboard/datauploaders/sysomos_medium.png',
+            'detail_level':basecsvdatauploader.DataUploader.DETAIL_LEVELS['specific'],
         }
 
     def get_content_item_template(self):

@@ -116,6 +116,7 @@ class DataUploadController(object):
         file_extension = self.uploaded_file.name.split('.')[-1]
         available_uploaders = [u for u in all_uploaders if u.can_parse_based_on_metadata(file_content_type, file_extension)]
         available_uploaders_config = [u.get_display_config() for u in available_uploaders]
+        available_uploaders_config = sorted(available_uploaders_config, key=lambda u: u['detail_level'], reverse=True)
         return available_uploaders_config
 
     def run_datauploader(self):

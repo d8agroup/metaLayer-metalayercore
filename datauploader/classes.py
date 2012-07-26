@@ -1,4 +1,11 @@
 class BaseDataUploader(object):
+    DETAIL_LEVELS = {
+        'very_broad':0.1,
+        'broad':0.3,
+        'specific':0.5, #specific to a given 3rd party file format
+        'very_specific':0.8 #Specific to a given customer
+    }
+
     def get_display_config(self):
         pass
 

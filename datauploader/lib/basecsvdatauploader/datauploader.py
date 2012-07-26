@@ -49,9 +49,10 @@ class DataUploader(BaseDataUploader):
     def get_display_config(self):
         return {
             'name':'basecsvdatauploader',
-            'display_name':'Generic Tabular Data Uploader',
-            'info_message':'The data uploader will take data stored in tabular format.',
+            'display_name':'Tabular Data Uploader',
+            'info_message':'Any CSV file data where the first row contains column headers.',
             'image_medium':'/static/images/thedashboard/datauploaders/table_medium.png',
+            'detail_level':BaseDataUploader.DETAIL_LEVELS['broad'],
         }
 
     def get_content_item_template(self):
