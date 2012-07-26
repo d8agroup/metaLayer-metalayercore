@@ -9,18 +9,13 @@ import csv
 class DataUploader(BaseDataUploader):
     class UnicodeCsvReader(object):
         # http://stackoverflow.com/questions/1846135/python-csv-library-with-unicode-utf-8-support-that-just-works
-        chunk_size = 4096
+        chunk_size = 4086
         def __init__(self, f, encoding=None, **kwargs):
             if not encoding:
                 chardet_detector = UniversalDetector()
                 chardet_detector.reset()
-                while 1:
-                    chunk = f.read(self.chunk_size)
-                    if not chunk:
-                        break
-                    chardet_detector.feed(chunk)
-                    if chardet_detector.done:
-                        break
+                chunk = f.read(self.chunk_size)
+                chardet_detector.feed(chunk)
                 chardet_detector.close()
                 chardet_encoding = chardet_detector.result['encoding']
                 encoding = chardet_encoding or 'utf-8'
@@ -79,8 +74,6 @@ class DataUploader(BaseDataUploader):
                 return False, ['At least one other row is longer than the header row']
             if len([c for c in rows[0] if not isinstance(c, basestring)]): #all are strings
                 return False, ['At least one header value is not a string']
-            if len([c for c in rows[0] if not c]):
-                return False, ['At least one header value is empty']
             passed = failed = 0.0
             for x in range(1, len(rows)):
                 for y in range(len(rows[0])):
@@ -96,15 +89,26 @@ class DataUploader(BaseDataUploader):
 
         try:
             file_as_csv = DataUploader.UnicodeCsvReader(file)
-            rows = [r for r in file_as_csv]
         except Exception as e:
-            return False, ['The file you uploaded is not a CSV file with comma field delimiters and double quote string quoting']
-        if not rows:
-            return False, ['The file you uploaded is empty.']
-        first_row_is_header, errors = _first_row_is_header(rows)
+            return False, ['The file you uploaded is not a Sysomos CSV file.']
+
+        first_ten_rows = []
+        for row in file_as_csv:
+            first_ten_rows.append(row)
+            if len(first_ten_rows) > 9:
+                break
+
+        if len(first_ten_rows) < 3:
+            return False, ['There is not enough data in this file.']
+
+        if len([r for r in first_ten_rows if not r or not len([c for c in r if c])]):
+            return False, ['No rows in the file can be empty.']
+
+        first_row_is_header, errors = _first_row_is_header(first_ten_rows)
         if not first_row_is_header:
             return False, ['The first row did not contain column headers:'] + errors
         return True, None
+
 
     def read_file_and_return_content(self, file):
         def _clean_row(row):

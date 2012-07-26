@@ -115,7 +115,14 @@ class DataUploadController(object):
         file_content_type = self.uploaded_file.content_type
         file_extension = self.uploaded_file.name.split('.')[-1]
         available_uploaders = [u for u in all_uploaders if u.can_parse_based_on_metadata(file_content_type, file_extension)]
-        available_uploaders_config = [u.get_display_config() for u in available_uploaders]
+        available_uploaders_config = []
+        for uploader in available_uploaders:
+            self.uploaded_file.seek(0)
+            uploader_config = uploader.get_display_config()
+            passed, errors = uploader.can_parse_based_on_test_pass(self.uploaded_file)
+            uploader_config['available'] = passed
+            uploader_config['errors'] = errors
+            available_uploaders_config.append(uploader_config)
         available_uploaders_config = sorted(available_uploaders_config, key=lambda u: u['detail_level'], reverse=True)
         return available_uploaders_config
 
@@ -160,6 +167,7 @@ class DataUploadController(object):
         return data_point_config, None
 
     def persist_file(self):
+        self.uploaded_file.seek(0) #reset the file if it has been opened for checking
         with open(os.path.join(settings.MEDIA_ROOT, self.file_id), 'wb+') as file:
             for chunk in self.uploaded_file.chunks():
                 file.write(chunk)
