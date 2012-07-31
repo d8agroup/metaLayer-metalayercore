@@ -2,6 +2,29 @@ from django.http import HttpResponse
 from controllers import DataUploadController
 from utils import serialize_to_json, JSONResponse
 
+def get_all_templates_with_options(request):
+    """
+    Return all the available uploaders with their content item templates
+
+    Notes
+    -----
+    At present this function does not support options passed as a request parameter but in future this will allow
+    the list of uploaders to be filtered by only ones applicable to a user.
+
+    Returns
+    -------
+    Array[dict{name, template}]: Array of dict's containing the uploader name and the content item template
+    """
+    all_available_uploaders = DataUploadController.AllAvailableUploaders()
+    #TODO Filter by options
+    uploader_names_and_templates = [{
+        'name':u.get_display_config()['name'],
+        'template':u.get_content_item_template()}
+        for u in all_available_uploaders
+    ]
+    return JSONResponse(uploader_names_and_templates)
+
+
 def return_uploaders_that_can_parse_file(request):
     file = request.FILES['data_upload']
     file_id = request.POST.get('file_id') or None
