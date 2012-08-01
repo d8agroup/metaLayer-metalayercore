@@ -9,9 +9,9 @@ class DataUploader(basecsvdatauploader.DataUploader):
 
     def get_display_config(self):
         return {
-            'name':'sysomosforumscsvdatauploader',
-            'display_name':'Sysomos Forums Posts',
-            'info_message':'Forum posts exported from Sysomos in CSV format.',
+            'name':'sysomosnewscsvdatauploader',
+            'display_name':'Sysomos News Articles',
+            'info_message':'News articles exported from Sysomos in CSV format.',
             'image_medium':'/static/images/thedashboard/datauploaders/sysomos_medium.png',
             'detail_level':basecsvdatauploader.DataUploader.DETAIL_LEVELS['specific'],
         }
@@ -19,7 +19,7 @@ class DataUploader(basecsvdatauploader.DataUploader):
     def get_content_item_template(self):
         return ""\
                "<li style='width:100%;'>"\
-               "<img src='/static/images/thedashboard/data_points/forum_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
+               "<img src='/static/images/thedashboard/data_points/news_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
                "<p style='float:right;padding:0 10px;position:relative;top:-2px;'>${pretty_date}</p>"\
                "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${strip_html($data.title)} - ${display_text_abstract($data.text)}</span></p>"\
                "<ul style='padding-left:30px;' class='actions'>"\

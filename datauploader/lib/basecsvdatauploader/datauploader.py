@@ -9,7 +9,7 @@ import csv
 class DataUploader(BaseDataUploader):
     class UnicodeCsvReader(object):
         # http://stackoverflow.com/questions/1846135/python-csv-library-with-unicode-utf-8-support-that-just-works
-        chunk_size = 4086
+        chunk_size = 24576 #in bytes
         def __init__(self, f, encoding=None, **kwargs):
             if not encoding:
                 chardet_detector = UniversalDetector()
@@ -18,7 +18,7 @@ class DataUploader(BaseDataUploader):
                 chardet_detector.feed(chunk)
                 chardet_detector.close()
                 chardet_encoding = chardet_detector.result['encoding']
-                encoding = chardet_encoding or 'utf-8'
+                encoding = chardet_encoding if chardet_encoding and not chardet_encoding == 'ascii' else 'utf-8'
                 f.seek(0)
             self.csv_reader = csv.reader(f, **kwargs)
             self.encoding = encoding

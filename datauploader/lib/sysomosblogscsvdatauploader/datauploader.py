@@ -23,6 +23,14 @@ class DataUploader(basecsvdatauploader.DataUploader):
                "<p style='float:right;padding:0 10px;position:relative;top:-2px;'>${pretty_date}</p>"\
                "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${strip_html($data.title)} - ${display_text_abstract($data.text)}</span></p>"\
                "<ul style='padding-left:30px;' class='actions'>"\
+               "    {{if extensions_host_s}}"\
+               "    <li class='action_values' style='margin-top:5px;'>"\
+               "       <label>Host</label>"\
+               "       <span style='font-weight:bold;'>"\
+               "           <a class='action_inline_filter' data-facet_name='extensions_host_s' data-facet_value='${extensions_host_s}'>${extensions_host_s}</a>"\
+               "       </span>"\
+               "    </li>"\
+               "    {{/if}}"\
                "    <li class='action_values' style='margin-top:5px;'>"\
                "       <label>Sentiment</label>"\
                "       <span style='font-weight:bold;'>"\
@@ -120,7 +128,7 @@ class DataUploader(basecsvdatauploader.DataUploader):
                 except Exception:
                     pass
     
-            for prop in ['gender', 'country', 'title']:
+            for prop in ['host', 'gender', 'country', 'title']:
                 value = row.get(prop)
                 if value:
                     content_item['extensions'][prop] = {
@@ -133,6 +141,11 @@ class DataUploader(basecsvdatauploader.DataUploader):
             {
                 'display_name':'sentiment',
                 'name':'extensions_sentiment_s',
+                'type':'string',
+            },
+            {
+                'display_name':'host',
+                'name':'extensions_host_s',
                 'type':'string',
             },
             {
