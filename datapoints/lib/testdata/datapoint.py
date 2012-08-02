@@ -10,9 +10,9 @@ class DataPoint(BaseDataPoint):
             'display_name_short':'Test Data',
             'full_display_name':'Test Data',
             'instructions':'Use this data point to search the public tweet stream.',
-            'image_large':'/static/images/favicon.ico',
-            'image_medium':'/static/images/favicon.ico',
-            'image_small':'/static/images/favicon.ico',
+            'image_large':'/static/images/thedashboard/data_points/twitter_large.png',
+            'image_medium':'/static/images/thedashboard/data_points/twitter_medium.png',
+            'image_small':'/static/images/thedashboard/data_points/twitter_small.png',
             'configured':True,
             'elements':[
                 self._generate_base_search_start_time_config_element(time.mktime(datetime.datetime(2012, 3, 14, 4, 0, 0).timetuple())),
@@ -24,7 +24,7 @@ class DataPoint(BaseDataPoint):
         return ""\
                 "<li style='width:100%;'>"\
                     "<a href='${author_link}'>"\
-                        "<img src='http://img.tweetimag.es/i/${author_display_name}_n' style='width:50px; padding:1px; box-shadow: 3px 3px 3px #111;' align='left' class='helper_corner tool_tip' title='<b>${author_display_name}</b> - click to view their profile on Twitter' />" \
+                        "<img src='/static/images/thedashboard/data_points/twitter_medium.png' style='width:50px; padding:1px;' align='left' class='helper_corner tool_tip' title='<b>${author_display_name}</b> - click to view their profile on Twitter' />" \
                     "</a>"\
                     "<p style='float:left; padding:2px 0 0 8px;font-weight:bold;width:40%;overflow:hidden;height:12px;'>${author_display_name}</p>"\
                     "<p style='margin-bottom:2px;text-align:right'>"\
