@@ -75,6 +75,34 @@ class DataPointController(object):
         Logger.Info('%s - DataPointController.is_valid - finished' % __name__)
         return passed, errors
 
+    def oauth_credentials_are_valid(self, credentials_json):
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        return data_point.oauth_credentials_are_valid(credentials_json)
+
+    def oauth_poll_for_new_credentials(self):
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        return data_point.oauth_poll_for_new_credentials(self.data_point)
+
+    def get_oauth_authenticate_url(self):
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        return data_point.oauth_get_oauth_authenticate_url(self.data_point['id'])
+
+    def update_data_point_with_oauth_dependant_config(self):
+        """
+        Return a configured data point based on the recently successful oauth authorisation
+
+        Returns
+        -------
+        Dict: a copy of the data point that is the subject of this controller enhanced with any oauth dependant config
+        """
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        enhanced_data_point = data_point.update_data_point_with_oauth_dependant_config(self.data_point)
+        return enhanced_data_point
+
     def get_configured_display_name(self):
         """
         Return the fully configured display name for the data point that this controller is the subject of

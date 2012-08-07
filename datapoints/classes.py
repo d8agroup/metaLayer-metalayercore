@@ -10,6 +10,18 @@ class BaseDataPoint(object):
     def tick(self, config):
         pass
 
+    def oauth_credentials_are_valid(self, credentials_json):
+        return True
+
+    def oauth_poll_for_new_credentials(self, config):
+        return None
+
+    def oauth_get_oauth_authenticate_url(self, id):
+        return None
+
+    def update_data_point_with_oauth_dependant_config(self, config):
+        return config
+
     def _generate_base_search_start_time_config_element(self, start_time=None):
         if not start_time:
             start_time = '*'
