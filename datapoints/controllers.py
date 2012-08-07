@@ -75,6 +75,20 @@ class DataPointController(object):
         Logger.Info('%s - DataPointController.is_valid - finished' % __name__)
         return passed, errors
 
+    def oauth_authenticate_for_data_point(self):
+        """
+        Call the oauth_authenticate method on the subject data point object and return formatted credentials
+
+        Returns
+        -------
+        Dict: a dictionary that can be serialized to JSON containing the return oauth credentials formatted so that
+        the same data point type can handle them.
+        """
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        credentials = data_point.oauth_authenticate()
+        return credentials
+
     def get_configured_display_name(self):
         """
         Return the fully configured display name for the data point that this controller is the subject of

@@ -1,4 +1,8 @@
+from StringIO import StringIO
 import datetime
+from oauth2client import clientsecrets
+from oauth2client.client import Storage, flow_from_clientsecrets, OAuth2WebServerFlow, UnknownClientSecretsFlowError
+from oauth2client.tools import run
 import re
 import time
 from metalayercore.datapoints.classes import BaseDataPoint
@@ -7,6 +11,7 @@ from urlparse import urlparse
 from hashlib import md5
 import feedparser
 from logger import Logger
+from django.utils import simplejson as json
 
 class DataPoint(BaseDataPoint):
     def get_unconfigured_config(self):
@@ -26,6 +31,13 @@ class DataPoint(BaseDataPoint):
                     'display_name':'The feed url',
                     'help':'The full url of the feed you want to subscribe to',
                     'type':'text',
+                    'value':''
+                },
+                {
+                    'name':'oauth',
+                    'display_name':'oauth',
+                    'help':'',
+                    'type':'oauth2',
                     'value':''
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=6)).timetuple())),
@@ -54,6 +66,30 @@ class DataPoint(BaseDataPoint):
 
     def validate_config(self, config):
         return True, {}
+
+    def oauth_authenticate(self):
+        class ObjectStorage(Storage):
+            credentials = None
+            def locked_get(self):
+                return self.credentials
+            def locked_put(self, credentials):
+                self.credentials = credentials
+            def locked_delete(self):
+                self.credentials = None
+
+        #TODO this need to be config based
+        flow = OAuth2WebServerFlow(
+            client_id="450032264506-r2rkr4265738j8fmodeceqc83uq5n6qm.apps.googleusercontent.com",
+            client_secret="bNxKL7-wjestOFeKBy5dkSi6",
+            scope='https://www.googleapis.com/auth/analytics.readonly'
+        )
+        storage = ObjectStorage()
+        #TODO this call to run PRINTS, this needs to be removed
+        credentials = run(flow, storage)
+        return credentials
+
+    def run_oauth_dependant_initial_data_point_setup(self, credentials):
+        pass
 
     def tick(self, config):
         Logger.Info('%s - tick - started - with config: %s' % (__name__, config))
