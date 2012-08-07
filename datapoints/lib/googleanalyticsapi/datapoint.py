@@ -1,5 +1,7 @@
 from StringIO import StringIO
 import datetime
+from apiclient.discovery import build
+import httplib2
 from oauth2client import clientsecrets
 from oauth2client.client import Storage, flow_from_clientsecrets, OAuth2WebServerFlow, UnknownClientSecretsFlowError
 from oauth2client.tools import run
@@ -27,15 +29,17 @@ class DataPoint(BaseDataPoint):
             'configured':False,
             'elements':[
                 {
-                    'name':'url',
-                    'display_name':'The feed url',
-                    'help':'The full url of the feed you want to subscribe to',
-                    'type':'text',
-                    'value':''
+                    'name':'account',
+                    'display_name':'The Google Analytics Account to get data from.',
+                    'help':'',
+                    'type':'select',
+                    'value':'',
+                    'values':[
+                    ]
                 },
                 {
-                    'name':'oauth',
-                    'display_name':'oauth',
+                    'name':'oauth2',
+                    'display_name':'oauth2',
                     'help':'',
                     'type':'oauth2',
                     'value':''
@@ -88,8 +92,20 @@ class DataPoint(BaseDataPoint):
         credentials = run(flow, storage)
         return credentials
 
-    def run_oauth_dependant_initial_data_point_setup(self, credentials):
-        pass
+    def update_data_point_with_oauth_dependant_config(self, config, credentials):
+        http = httplib2.Http()
+        http = credentials.authorize(http)
+        service = build('analytics', 'v3', http=http)
+        accounts = service.management().accounts().list().execute()
+        accounts = accounts.get('items')
+        accounts = sorted(accounts, key=lambda a: a['updated'], reverse=True)
+        accounts_element = [e for e in config['elements'] if e['name'] == 'account'][0]
+        accounts_element['values'] = [{'value':a.get('id'), 'name':a.get('name')} for a in accounts if 'id' in a and 'name' in a]
+
+        oauth2_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
+        oauth2_element['value'] = credentials.to_json()
+
+        return config
 
     def tick(self, config):
         Logger.Info('%s - tick - started - with config: %s' % (__name__, config))

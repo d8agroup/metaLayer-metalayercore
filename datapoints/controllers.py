@@ -89,6 +89,23 @@ class DataPointController(object):
         credentials = data_point.oauth_authenticate()
         return credentials
 
+    def update_data_point_with_oauth_dependant_config(self, credentials):
+        """
+        Return a configured data point based on the recently successful oauth authorisation
+
+        Arguments
+        ---------
+        credentials (dict/object): a credentials object that can be understood by the subject data_point
+
+        Returns
+        -------
+        Dict: a copy of the data point that is the subject of this controller enhanced with any oauth dependant config
+        """
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        enhanced_data_point = data_point.update_data_point_with_oauth_dependant_config(self.data_point, credentials)
+        return enhanced_data_point
+
     def get_configured_display_name(self):
         """
         Return the fully configured display name for the data point that this controller is the subject of
