@@ -15,10 +15,10 @@ from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
 
 class DataPoint(BaseDataPoint):
     flow = OAuth2WebServerFlow(
-        client_id="450032264506.apps.googleusercontent.com",
-        client_secret="Pu-Fk1rPYFKATskh9ws1DTPI",
+        client_id="THIS IS MANAGED ELSEWHERE",
+        client_secret="THIS IS MANAGED ELSEWHERE",
         scope='https://www.googleapis.com/auth/analytics.readonly',
-        redirect_uri='http://%s/oauth2/google_oauth2_callback' % settings.SITE_HOST)
+        redirect_uri='THIS IS MANAGED ELSEWHERE')
 
     def get_unconfigured_config(self):
         return {
