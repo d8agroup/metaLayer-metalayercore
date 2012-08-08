@@ -1,10 +1,8 @@
-from StringIO import StringIO
 import datetime
+from django.conf import settings
 from apiclient.discovery import build
 import httplib2
-from oauth2client import clientsecrets
-from oauth2client.client import Storage, flow_from_clientsecrets, OAuth2WebServerFlow, UnknownClientSecretsFlowError
-from oauth2client.tools import run
+from oauth2client.client import  OAuth2WebServerFlow, Credentials
 import re
 import time
 from metalayercore.datapoints.classes import BaseDataPoint
@@ -13,9 +11,15 @@ from urlparse import urlparse
 from hashlib import md5
 import feedparser
 from logger import Logger
-from django.utils import simplejson as json
+from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
 
 class DataPoint(BaseDataPoint):
+    flow = OAuth2WebServerFlow(
+        client_id="450032264506.apps.googleusercontent.com",
+        client_secret="Pu-Fk1rPYFKATskh9ws1DTPI",
+        scope='https://www.googleapis.com/auth/analytics.readonly',
+        redirect_uri='http://%s/oauth2/google_oauth2_callback' % settings.SITE_HOST)
+
     def get_unconfigured_config(self):
         return {
             'type':'googleanalyticsapi',
@@ -71,28 +75,34 @@ class DataPoint(BaseDataPoint):
     def validate_config(self, config):
         return True, {}
 
-    def oauth_authenticate(self):
-        class ObjectStorage(Storage):
-            credentials = None
-            def locked_get(self):
-                return self.credentials
-            def locked_put(self, credentials):
-                self.credentials = credentials
-            def locked_delete(self):
-                self.credentials = None
+    def oauth_get_oauth2_return_handler(self, data_point_id):
+        flow = self.flow
+        flow.params['state'] = '_'.join([data_point_id, self.get_unconfigured_config()['type']])
+        return flow
 
-        #TODO this need to be config based
-        flow = OAuth2WebServerFlow(
-            client_id="450032264506-r2rkr4265738j8fmodeceqc83uq5n6qm.apps.googleusercontent.com",
-            client_secret="bNxKL7-wjestOFeKBy5dkSi6",
-            scope='https://www.googleapis.com/auth/analytics.readonly'
-        )
-        storage = ObjectStorage()
-        #TODO this call to run PRINTS, this needs to be removed
-        credentials = run(flow, storage)
-        return credentials
+    def oauth_credentials_are_valid(self, credentials_json):
+        if not credentials_json:
+            return False
+        try:
+            credentials = Credentials.new_from_json(credentials_json)
+        except Exception:
+            return False
+        if credentials is None or credentials.invalid:
+            return False
+        return True
 
-    def update_data_point_with_oauth_dependant_config(self, config, credentials):
+    def oauth_poll_for_new_credentials(self, config):
+        credentials = GoogleOauth2Controller.PollForNewCredentials(self.oauth_get_oauth2_return_handler(config['id']))
+        oauth_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
+        oauth_element['value'] = credentials.to_json()
+        return config
+
+    def oauth_get_oauth_authenticate_url(self, id):
+        authorize_url = GoogleOauth2Controller.GetOauth2AuthorizationUrl(self.oauth_get_oauth2_return_handler(id))
+        return authorize_url
+
+    def update_data_point_with_oauth_dependant_config(self, config):
+        credentials = Credentials.new_from_json([e for e in config['elements'] if e['name'] == 'oauth2'][0]['value'])
         http = httplib2.Http()
         http = credentials.authorize(http)
         service = build('analytics', 'v3', http=http)
@@ -100,7 +110,9 @@ class DataPoint(BaseDataPoint):
         accounts = accounts.get('items')
         accounts = sorted(accounts, key=lambda a: a['updated'], reverse=True)
         accounts_element = [e for e in config['elements'] if e['name'] == 'account'][0]
-        accounts_element['values'] = [{'value':a.get('id'), 'name':a.get('name')} for a in accounts if 'id' in a and 'name' in a]
+
+        post_oauth_request_accounts = [{'value': a.get('id'), 'name': a.get('name')} for a in accounts if 'id' in a and 'name' in a]
+        accounts_element['values'] = post_oauth_request_accounts
 
         oauth2_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
         oauth2_element['value'] = credentials.to_json()
