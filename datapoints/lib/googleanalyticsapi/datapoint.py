@@ -1,16 +1,10 @@
 import datetime
-from django.conf import settings
 from apiclient.discovery import build
 import httplib2
 from oauth2client.client import  OAuth2WebServerFlow, Credentials
-import re
 import time
 from metalayercore.datapoints.classes import BaseDataPoint
-from dateutil import parser as dateutil_parser, tz
-from urlparse import urlparse
 from hashlib import md5
-import feedparser
-from logger import Logger
 from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
 
 class DataPoint(BaseDataPoint):
@@ -58,9 +52,9 @@ class DataPoint(BaseDataPoint):
                     'type':'multiple_select',
                     'value':'',
                     'values':[
-                        {'name':'Visitors', 'value':'ga:visitors'},
-                        {'name':'New Visits', 'value':'ga:newVisits'},
-                        {'name':'Percent New Visits', 'value':'ga:percentNewVisits'},
+                        {'name':'Visitors', 'value':'ga:visitors', 'option_group':'Visitor'},
+                        {'name':'New Visits', 'value':'ga:newVisits', 'option_group':'Visitor'},
+                        {'name':'Percent New Visits', 'value':'ga:percentNewVisits', 'option_group':'Visitor'},
                     ]
                 },
                 {
