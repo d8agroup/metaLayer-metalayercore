@@ -34,11 +34,23 @@ class DataPoint(BaseDataPoint):
             'elements':[
                 {
                     'name':'account',
-                    'display_name':'The Google Analytics Account to get data from.',
-                    'help':'',
+                    'display_name':'Google Analytics Account',
+                    'help':'The Google Analytics Account to get data from.',
                     'type':'select',
                     'value':'',
                     'values':[
+                    ]
+                },
+                {
+                    'name':'metrics',
+                    'display_name':'Metrics to include (max 10)',
+                    'help':'Choose the metrics you want to bring in to from Google Analytics up to a maximum of 10.',
+                    'type':'multiple_select',
+                    'value':'',
+                    'values':[
+                        {'name':'Visitors', 'value':'ga:visitors'},
+                        {'name':'New Visits', 'value':'ga:newVisits'},
+                        {'name':'Percent New Visits', 'value':'ga:percentNewVisits'},
                     ]
                 },
                 {
@@ -48,8 +60,20 @@ class DataPoint(BaseDataPoint):
                     'type':'oauth2',
                     'value':''
                 },
-                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=6)).timetuple())),
-                self._generate_base_search_end_time_config_element()
+                {
+                    'name':'start_time',
+                    'display_name':'Start Date',
+                    'help':'',
+                    'type':'date_time',
+                    'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%d/%m/%Y"),
+                },
+                {
+                    'name':'end_time',
+                    'display_name':'End Date',
+                    'help':'',
+                    'type':'date_time',
+                    'value':datetime.datetime.now().strftime("%d/%m/%Y"),
+                },
             ]
         }
 
@@ -64,15 +88,22 @@ class DataPoint(BaseDataPoint):
             "</li>"
 
     def generate_configured_guid(self, config):
-        url = [e for e in config['elements'] if e['name'] == 'url'][0]['value']
-        return md5(url).hexdigest()
+        account_id = [e for e in config['elements'] if e['name'] == 'account'][0]['value']
+        return md5(account_id).hexdigest()
 
     def generate_configured_display_name(self, config):
-        url = [e for e in config['elements'] if e['name'] == 'url'][0]['value']
-        parsed_url = urlparse(url)
-        return 'Google Analytics: %s%s' % (parsed_url.netloc, parsed_url.path)
+        account_element = [e for e in config['elements'] if e['name'] == 'account'][0]
+        account_id = account_element['value']
+        account_name = [v['name'] for v in account_element['values'] if v['value'] == account_id][0]
+        return 'Google Analytics: %s' % account_name
 
     def validate_config(self, config):
+        metrics_element = [e for e in config['elements'] if e['name'] == 'metrics'][0]
+        if not metrics_element['value']:
+            return False, { 'metrics':['You must choose some metrics to collect'] }
+        number_of_metrics_chosen = len(metrics_element['value'])
+        if number_of_metrics_chosen > 10:
+            return False, { 'metrics':['You have chosen %i metrics, the limit is 10' % number_of_metrics_chosen] }
         return True, {}
 
     def oauth_get_oauth2_return_handler(self, data_point_id):
