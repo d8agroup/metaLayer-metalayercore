@@ -64,18 +64,32 @@ class DataPoint(BaseDataPoint):
                     ]
                 },
                 {
-                    'name':'start_time',
+                    'name':'start_date',
                     'display_name':'Start Date',
                     'help':'',
                     'type':'date_time',
                     'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%d/%m/%Y"),
                 },
                 {
-                    'name':'end_time',
+                    'name':'end_date',
                     'display_name':'End Date',
                     'help':'',
                     'type':'date_time',
                     'value':datetime.datetime.now().strftime("%d/%m/%Y"),
+                },
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
+                self._generate_base_search_end_time_config_element()
+            ],
+            'meta_data':[
+                {
+                    'display_name':'Total Visitors',
+                    'name':'extensions_visitors_f',
+                    'type':'float'
+                },
+                {
+                    'display_name':'Visitors',
+                    'name':'extensions_newVisits_f',
+                    'type':'float'
                 },
             ]
         }
@@ -83,16 +97,31 @@ class DataPoint(BaseDataPoint):
     def get_content_item_template(self):
         return "" \
             "<li style='width:100%;'>" \
-                "<img src='/static/images/thedashboard/data_points/feed_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
-                "<p style='float:right;padding-right:10px;'>${pretty_date}</p>"\
-                "<p style='margin-bottom:2px;'>${source_display_name}</p>" \
-                "<p style='padding-left:30px;'>${author_display_name}<span style='font-weight:bold'> ${title}</span></p>" \
-                "<ul style='padding-left:30px;' class='actions'></ul>" \
-            "</li>"
+                "<img src='/static/images/thedashboard/data_points/ga_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
+                "<p style='padding-left:30px;'><span style='font-weight:bold'> ${title}</span></p>"\
+                "<ul style='padding-left:30px;' class='actions'>" \
+                "   {{if (typeof extensions_visitors_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
+                "       <label>Visits</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_visitors_f' data-facet_value='${extensions_visitors_f}'>${extensions_visitors_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_newVisits_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
+                "       <label>New Visits</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_newVisits_f' data-facet_value='${extensions_newVisits_f}'>${extensions_newVisits_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "</ul>"\
+                "</li>"
 
     def generate_configured_guid(self, config):
         account_id = [e for e in config['elements'] if e['name'] == 'account'][0]['value']
-        return md5(account_id).hexdigest()
+        return md5('%s %i' % (account_id, int(time.time()))).hexdigest()
 
     def generate_configured_display_name(self, config):
         account_element = [e for e in config['elements'] if e['name'] == 'account'][0]
@@ -136,6 +165,12 @@ class DataPoint(BaseDataPoint):
         return authorize_url
 
     def update_data_point_with_oauth_dependant_config(self, config):
+        def get_profile_id_for_account(service, account_id):
+            web_properties = service.management().webproperties().list(accountId=account_id).execute()
+            web_property_id = web_properties.get('items')[0].get('id')
+            profiles = service.management().profiles().list(accountId=account_id,webPropertyId=web_property_id).execute()
+            return profiles.get('items')[0].get('id')
+
         credentials = Credentials.new_from_json([e for e in config['elements'] if e['name'] == 'oauth2'][0]['value'])
         http = httplib2.Http()
         http = credentials.authorize(http)
@@ -144,51 +179,50 @@ class DataPoint(BaseDataPoint):
         accounts = accounts.get('items')
         accounts = sorted(accounts, key=lambda a: a['updated'], reverse=True)
         accounts_element = [e for e in config['elements'] if e['name'] == 'account'][0]
-
-        post_oauth_request_accounts = [{'value': a.get('id'), 'name': a.get('name')} for a in accounts if 'id' in a and 'name' in a]
+        post_oauth_request_accounts = [{'value': get_profile_id_for_account(service, a.get('id')), 'name': a.get('name')} for a in accounts if 'id' in a and 'name' in a]
         accounts_element['values'] = post_oauth_request_accounts
-
         oauth2_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
         oauth2_element['value'] = credentials.to_json()
-
         return config
 
     def tick(self, config):
-        Logger.Info('%s - tick - started - with config: %s' % (__name__, config))
-        feed_url = [e for e in config['elements'] if e['name'] == 'url'][0]['value']
-        feed = feedparser.parse(feed_url)
-        content = [self._map_feed_item_to_content_item(config, item) for item in feed['items']]
-        Logger.Info('%s - tick - finished' % __name__)
-        return content
-
-    def _map_feed_item_to_content_item(self, config, item):
-        return {
-            'id':md5(item['link']).hexdigest(),
-            'text':[
-                    {
-                    'title': item['title'],
-                    'text':[
-                        re.sub(r'<.*?>', '', item['summary'])
-                    ],
-                    'tags':[t['term'] for t in item['tags']] if 'tags' in item else []
+        credentials = Credentials.new_from_json([e for e in config['elements'] if e['name'] == 'oauth2'][0]['value'])
+        http = httplib2.Http()
+        http = credentials.authorize(http)
+        service = build('analytics', 'v3', http=http)
+        query_data = service.data().ga().get(
+            ids = 'ga:' + [e for e in config['elements'] if e['name'] == 'account'][0]['value'],
+            start_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'start_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
+            end_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'end_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
+            metrics = ','.join([e for e in config['elements'] if e['name'] == 'metrics'][0]['value']),
+            dimensions = 'ga:date',
+            sort = 'ga:date',
+            max_results = '2000').execute()
+        columns = query_data['columnHeaders']
+        rows = query_data['rows']
+        content_items = []
+        for row in rows:
+            configured_display_name = self.generate_configured_display_name(config)
+            content_item = {
+                'id':md5('%s-%s' % (config['id'], row[0])).hexdigest(),
+                'text':[{'title':'%s Data for %s' % (configured_display_name, datetime.datetime.strptime(row[0], '%Y%m%d').strftime('%m/%d/%Y'))}],
+                'time':int(time.time()),
+                'channel':{
+                    'id':md5(config['type'] + config['sub_type']).hexdigest(),
+                    'type':config['type'],
+                    'sub_type':config['sub_type']},
+                'source':{
+                    'id':config['id'],
+                    'display_name':self.generate_configured_display_name(config)},
+                'extensions':{}}
+            for c in range(1, len(columns)):
+                header = columns[c]
+                value = row[c]
+                content_item['extensions'][header['name'].replace('ga:', '')] = {
+                    'type':'float' if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else 'string',
+                    'value':float(value) if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else str(value)
                 }
-            ],
-            'time': time.mktime(dateutil_parser.parse(item['updated']).astimezone(tz.tzutc()).timetuple()),
-            'link':item['link'],
-            'author':{
-                'display_name':item['author'] if 'author' in item else 'none',
-                },
-            'channel':{
-                'id':md5(config['type'] + config['sub_type'] if 'sub_type' in config else '').hexdigest(),
-                'type':config['type'],
-                'sub_type':config['sub_type'] if 'sub_type' in config else None
-            },
-            'source':{
-                'id':self.generate_configured_guid(config),
-                'display_name':self.generate_configured_display_name(config),
-                }
-        }
 
-    def _clean_url_for_display_name(self, url):
-        parsed_url = urlparse.urlparse(url)
-        return parsed_url.netloc + '-'.join(parsed_url.path.split('/'))
+            content_items.append(content_item)
+        return content_items
+

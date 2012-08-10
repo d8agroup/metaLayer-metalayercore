@@ -23,8 +23,11 @@ class SearchDataPointParser(object):
 
     def _parse_data_point_as_sources(self, data_point):
         Logger.Info('%s - SearchDataPointParser._parse_data_point - started' % __name__)
-        dpc = DataPointController(data_point)
-        data_point_query = 'source_id:%s' % dpc.generate_configured_guid()
+        if 'id' in data_point:
+            data_point_query = 'source_id:%s' % data_point['id']
+        else:
+            dpc = DataPointController(data_point)
+            data_point_query = 'source_id:%s' % dpc.generate_configured_guid()
         Logger.Info('%s - SearchDataPointParser._parse_data_point - finished' % __name__)
         return data_point_query
 

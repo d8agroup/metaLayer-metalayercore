@@ -13,7 +13,8 @@ class RunRecord(models.Model):
         if 'sub_type' in data_point:
             unique_key += data_point['sub_type']
         if 'elements' in data_point:
-            unique_key += ''.join([e['value'] for e in data_point['elements']])
+            unique_key += ''.join([''.join(e['value']) for e in data_point['elements'] if isinstance(e['value'], list)])
+            unique_key += ''.join([e['value'] for e in data_point['elements'] if not isinstance(e['value'], list)])
         if actions:
             unique_key += ''.join([a['name'] for a in actions])
         return md5(unique_key).hexdigest()
