@@ -56,6 +56,7 @@ class DataPoint(BaseDataPoint):
                     "       <span style='font-weight:bold;'>" \
                     "           <a class='action_inline_filter' data-facet_name='extensions_twitterusername_s' data-facet_value='${extensions_twitterusername_s}'>${extensions_twitterusername_s}</a>"\
                     "       </span>" \
+                    "   </li>" \
                     "</ul>"\
                 "</li>"
 
