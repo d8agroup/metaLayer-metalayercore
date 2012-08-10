@@ -33,6 +33,16 @@ class DataPoint(BaseDataPoint):
             'configured':False,
             'elements':[
                 {
+                    'name':'oauth2',
+                    'display_name':'oauth2',
+                    'help':"""To access your data from Google Analytics, you need to authorize Delv to collect data on your
+                              behalf.<br/><br/>
+                              Please click the Authorize button below, you will then be take to a Google web page so you can
+                              authorize Delv.""",
+                    'type':'oauth2',
+                    'value':''
+                },
+                {
                     'name':'account',
                     'display_name':'Google Analytics Account',
                     'help':'The Google Analytics Account to get data from.',
@@ -52,13 +62,6 @@ class DataPoint(BaseDataPoint):
                         {'name':'New Visits', 'value':'ga:newVisits'},
                         {'name':'Percent New Visits', 'value':'ga:percentNewVisits'},
                     ]
-                },
-                {
-                    'name':'oauth2',
-                    'display_name':'oauth2',
-                    'help':'',
-                    'type':'oauth2',
-                    'value':''
                 },
                 {
                     'name':'start_time',
