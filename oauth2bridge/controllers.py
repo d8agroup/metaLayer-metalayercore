@@ -1,7 +1,25 @@
-from metalayercore.oauth2bridge.models import GoogleOauth2StorageObject
+from metalayercore.oauth2bridge.models import GoogleOauth2StorageObject, CredentialsStoreObjects
 from metalayercore.datapoints.controllers import DataPointController
 from django.conf import settings
 import time
+
+class Oauth2Controller(object):
+    @classmethod
+    def PersistCredentialsStore(cls, id, store_json):
+        try:
+            store_object = CredentialsStoreObjects.objects.get(key=id)
+        except CredentialsStoreObjects.DoesNotExist:
+            store_object = CredentialsStoreObjects(key=id)
+        store_object.store = store_json
+        store_object.save()
+
+    @classmethod
+    def RetrieveCredentialsStore(cls, id):
+        try:
+            store_object = CredentialsStoreObjects.objects.get(key=id)
+            return store_object.store
+        except CredentialsStoreObjects.DoesNotExist:
+            return None
 
 class GoogleOauth2Controller(object):
     @classmethod
@@ -34,5 +52,3 @@ class GoogleOauth2Controller(object):
         credentials = flow.step2_exchange(request.REQUEST)
         storage = GoogleOauth2StorageObject(flow.params['state'])
         storage.put(credentials)
-
-

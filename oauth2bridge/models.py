@@ -57,3 +57,7 @@ class GoogleOauth2Storage(models.Model):
     def get_credentials(self):
         credentials = Credentials.new_from_json(self.credentials)
         return credentials
+
+class CredentialsStoreObjects(models.Model):
+    key = models.TextField()
+    store = models.TextField()
