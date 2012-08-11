@@ -1,7 +1,9 @@
 from django.db import models
-from oauth2client.django_orm import CredentialsField
+from djangotoolbox.fields import DictField
+from oauth2client.client import Storage, Credentials
+from django.utils import simplejson as json
 
-class GoogleOauth2StorageObject(object):
+class GoogleOauth2StorageObject(Storage):
     def __init__(self, id):
         self.id = id
 
@@ -15,7 +17,7 @@ class GoogleOauth2StorageObject(object):
         """
         try:
             storage = GoogleOauth2Storage.objects.get(access_id=self.id)
-            return storage.credentials
+            return storage.get_credentials()
         except GoogleOauth2Storage.DoesNotExist:
             return None
 
@@ -28,10 +30,10 @@ class GoogleOauth2StorageObject(object):
         credentials: Credentials, the credentials to store.
         """
         try:
-            storage = GoogleOauth2Storage.objects.get(access_id=id)
+            storage = GoogleOauth2Storage.objects.get(access_id=self.id)
         except GoogleOauth2Storage.DoesNotExist:
             storage = GoogleOauth2Storage(access_id=self.id)
-        storage.credentials = credentials
+        storage.set_credentials(credentials)
         storage.save()
 
     def locked_delete(self):
@@ -46,4 +48,12 @@ class GoogleOauth2StorageObject(object):
 
 class GoogleOauth2Storage(models.Model):
     access_id = models.CharField(max_length=256)
-    credentials = CredentialsField()
+    credentials = models.TextField()
+
+    def set_credentials(self, raw_credentials):
+        credentials = raw_credentials.to_json()
+        self.credentials = credentials
+
+    def get_credentials(self):
+        credentials = Credentials.new_from_json(self.credentials)
+        return credentials
