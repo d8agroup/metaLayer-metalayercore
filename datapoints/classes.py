@@ -7,6 +7,9 @@ class BaseDataPoint(object):
     def data_point_removed(self, config):
         pass
 
+    def perform_post_validation_configuration_changes(self, config):
+        return config
+
     def tick(self, config):
         pass
 

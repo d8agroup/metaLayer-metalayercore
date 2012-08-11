@@ -1,11 +1,12 @@
-import datetime
-from apiclient.discovery import build
-import httplib2
-from oauth2client.client import  OAuth2WebServerFlow, Credentials
-import time
-from metalayercore.datapoints.classes import BaseDataPoint
-from hashlib import md5
+import calendar
 from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
+from oauth2client.client import  OAuth2WebServerFlow, Credentials
+from metalayercore.datapoints.classes import BaseDataPoint
+from apiclient.discovery import build
+from hashlib import md5
+import httplib2
+import datetime
+import time
 
 class DataPoint(BaseDataPoint):
     flow = OAuth2WebServerFlow(
@@ -114,6 +115,9 @@ class DataPoint(BaseDataPoint):
                 "</li>"
 
     def generate_configured_guid(self, config):
+        id = config.get('id')
+        if id:
+            return id
         account_id = [e for e in config['elements'] if e['name'] == 'account'][0]['value']
         return md5('%s %i' % (account_id, int(time.time()))).hexdigest()
 
@@ -131,6 +135,18 @@ class DataPoint(BaseDataPoint):
         if number_of_metrics_chosen > 10:
             return False, { 'metrics':['You have chosen %i metrics, the limit is 10' % number_of_metrics_chosen] }
         return True, {}
+
+    def perform_post_validation_configuration_changes(self, config):
+        """
+        Take the date strings entered into the data point config and set the start and end time elements
+        """
+        start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
+        start_time_element = [e for e in config['elements'] if e['name'] == 'start_time'][0]
+        start_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(start_date, '%d/%m/%Y').timetuple())
+        end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
+        end_time_element = [e for e in config['elements'] if e['name'] == 'end_time'][0]
+        end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%d/%m/%Y').timetuple())
+        return config
 
     def oauth_get_oauth2_return_handler(self, data_point_id):
         flow = self.flow
@@ -200,7 +216,7 @@ class DataPoint(BaseDataPoint):
             content_item = {
                 'id':md5('%s-%s' % (config['id'], row[0])).hexdigest(),
                 'text':[{'title':'%s Data for %s' % (configured_display_name, datetime.datetime.strptime(row[0], '%Y%m%d').strftime('%m/%d/%Y'))}],
-                'time':int(time.time()),
+                'time':int(calendar.timegm(datetime.datetime.strptime(row[0], '%Y%m%d').timetuple())),
                 'channel':{
                     'id':md5(config['type'] + config['sub_type']).hexdigest(),
                     'type':config['type'],
