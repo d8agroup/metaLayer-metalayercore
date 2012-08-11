@@ -56,6 +56,16 @@ class DataPoint(BaseDataPoint):
                         {'name':'Visitors', 'value':'ga:visitors', 'option_group':'Visitor'},
                         {'name':'New Visits', 'value':'ga:newVisits', 'option_group':'Visitor'},
                         {'name':'Percent New Visits', 'value':'ga:percentNewVisits', 'option_group':'Visitor'},
+                        {'name':'Visits', 'value':'ga:visits', 'option_group':'Session'},
+                        {'name':'Bounces', 'value':'ga:bounces', 'option_group':'Session'},
+                        {'name':'Entrance Bounce Rate', 'value':'ga:entranceBounceRate', 'option_group':'Session'},
+                        {'name':'Visit Bounce Rate', 'value':'ga:visitBounceRate', 'option_group':'Session'},
+                        {'name':'Time on Site', 'value':'ga:timeOnSite', 'option_group':'Session'},
+                        {'name':'Average Time on Site', 'value':'ga:avgTimeOnSite', 'option_group':'Session'},
+                        {'name':'Organic Searches', 'value':'ga:organicSearches', 'option_group':'Traffic Sources'},
+                        {'name':'Page Views', 'value':'ga:pageviews', 'option_group':'Page Tracking'},
+                        {'name':'Page Views per Visit', 'value':'ga:pageviewsPerVisit', 'option_group':'Page Tracking'},
+                        {'name':'Unique Page Views', 'value':'ga:uniquePageviews', 'option_group':'Page Tracking'},
                     ]
                 },
                 {
@@ -76,16 +86,17 @@ class DataPoint(BaseDataPoint):
                 self._generate_base_search_end_time_config_element()
             ],
             'meta_data':[
-                {
-                    'display_name':'Total Visitors',
-                    'name':'extensions_visitors_f',
-                    'type':'float'
-                },
-                {
-                    'display_name':'Visitors',
-                    'name':'extensions_newVisits_f',
-                    'type':'float'
-                },
+                { 'display_name':'Total Visitors', 'name':'extensions_visitors_f', 'type':'float' },
+                { 'display_name':'Visitors', 'name':'extensions_newVisits_f', 'type':'float' },
+                { 'display_name':'Visits', 'name':'extensions_visits_f', 'type':'float' },
+                { 'display_name':'Bounces', 'name':'extensions_bounces_f', 'type':'float' },
+                { 'display_name':'Entrance Bounce Rate', 'name':'extensions_entranceBounceRate_f', 'type':'float' },
+                { 'display_name':'Visit Bounce Rate', 'name':'extensions_visitBounceRate_f', 'type':'float' },
+                { 'display_name':'Average Time on Site', 'name':'extensions_avgTimeOnSite_f', 'type':'float'},
+                { 'display_name':'Organic Searches', 'name':'extensions_organicSearches_f', 'type':'float'},
+                { 'display_name':'Page Views', 'name':'extensions_pageviews_f', 'type':'float'},
+                { 'display_name':'Page Views per Visit', 'name':'extensions_pageviewsPerVisit_f', 'type':'float'},
+                { 'display_name':'Unique Page Views', 'name':'extensions_uniquePageviews_f', 'type':'float'},
             ]
         }
 
@@ -96,18 +107,90 @@ class DataPoint(BaseDataPoint):
                 "<p style='padding-left:30px;'><span style='font-weight:bold'> ${title}</span></p>"\
                 "<ul style='padding-left:30px;' class='actions'>" \
                 "   {{if (typeof extensions_visitors_f !== 'undefined')}}"\
-                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
-                "       <label>Visits</label>"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visitors</label>"\
                 "       <span style='font-weight:bold;'>"\
                 "           <a class='action_inline_range_filter' data-facet_name='extensions_visitors_f' data-facet_value='${extensions_visitors_f}'>${extensions_visitors_f}</a>"\
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
                 "   {{if (typeof extensions_newVisits_f !== 'undefined')}}"\
-                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
                 "       <label>New Visits</label>"\
                 "       <span style='font-weight:bold;'>"\
                 "           <a class='action_inline_range_filter' data-facet_name='extensions_newVisits_f' data-facet_value='${extensions_newVisits_f}'>${extensions_newVisits_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_visits_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visits</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_visits_f' data-facet_value='${extensions_visits_f}'>${extensions_visits_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_bounces_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Bounces</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_bounce_f' data-facet_value='${extensions_bounces_f}'>${extensions_bounces_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_entranceBounceRate_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Enterance Bounce Rate</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_entranceBounceRate_f' data-facet_value='${extensions_entranceBounceRate_f}'>${extensions_entranceBounceRate_f}&#37;</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_visitBounceRate_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visit Bounce Rate</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_visitBounceRate_f' data-facet_value='${extensions_visitBounceRate_f}'>${extensions_visitBounceRate_f}&#37;</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_avgTimeOnSite_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Average Time on Site</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_avgTimeOnSite_f' data-facet_value='${extensions_avgTimeOnSite_f}'>${extensions_avgTimeOnSite_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_organicSearches_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Organic Searches</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_organicSearches_f' data-facet_value='${extensions_organicSearches_f}'>${extensions_organicSearches_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_pageviews_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Page Views</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_pageviews_f' data-facet_value='${extensions_pageviews_f}'>${extensions_pageviews_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_pageviewsPerVisit_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Page Views Per Visit</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_pageviewsPerVisit_f' data-facet_value='${extensions_pageviewsPerVisit_f}'>${extensions_pageviewsPerVisit_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_uniquePageviews_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Unique Page Views</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_uniquePageviews_f' data-facet_value='${extensions_uniquePageviews_f}'>${extensions_uniquePageviews_f}</a>"\
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
@@ -228,9 +311,18 @@ class DataPoint(BaseDataPoint):
             for c in range(1, len(columns)):
                 header = columns[c]
                 value = row[c]
+                if header['dataType'] in ['INTEGER']:
+                    value = int(value)
+                    value_type = 'float'
+                elif header['dataType'] in ['FLOAT', 'CURRENCY', 'PERCENT']:
+                    value = round(float(value), 2)
+                    value_type = 'float'
+                else:
+                    value = str(value)
+                    value_type = 'string'
                 content_item['extensions'][header['name'].replace('ga:', '')] = {
-                    'type':'float' if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else 'string',
-                    'value':float(value) if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else str(value)
+                    'type':value_type,
+                    'value': value
                 }
 
             content_items.append(content_item)
