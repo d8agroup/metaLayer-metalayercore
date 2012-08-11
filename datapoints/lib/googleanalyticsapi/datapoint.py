@@ -55,13 +55,9 @@ class DataPoint(BaseDataPoint):
                     'values':[
                         {'name':'Visitors', 'value':'ga:visitors', 'option_group':'Visitor'},
                         {'name':'New Visits', 'value':'ga:newVisits', 'option_group':'Visitor'},
-                        {'name':'Percent New Visits', 'value':'ga:percentNewVisits', 'option_group':'Visitor'},
                         {'name':'Visits', 'value':'ga:visits', 'option_group':'Session'},
                         {'name':'Bounces', 'value':'ga:bounces', 'option_group':'Session'},
-                        {'name':'Entrance Bounce Rate', 'value':'ga:entranceBounceRate', 'option_group':'Session'},
                         {'name':'Visit Bounce Rate', 'value':'ga:visitBounceRate', 'option_group':'Session'},
-                        {'name':'Time on Site', 'value':'ga:timeOnSite', 'option_group':'Session'},
-                        {'name':'Average Time on Site', 'value':'ga:avgTimeOnSite', 'option_group':'Session'},
                         {'name':'Organic Searches', 'value':'ga:organicSearches', 'option_group':'Traffic Sources'},
                         {'name':'Page Views', 'value':'ga:pageviews', 'option_group':'Page Tracking'},
                         {'name':'Page Views per Visit', 'value':'ga:pageviewsPerVisit', 'option_group':'Page Tracking'},
@@ -90,9 +86,7 @@ class DataPoint(BaseDataPoint):
                 { 'display_name':'Visitors', 'name':'extensions_newVisits_f', 'type':'float' },
                 { 'display_name':'Visits', 'name':'extensions_visits_f', 'type':'float' },
                 { 'display_name':'Bounces', 'name':'extensions_bounces_f', 'type':'float' },
-                { 'display_name':'Entrance Bounce Rate', 'name':'extensions_entranceBounceRate_f', 'type':'float' },
                 { 'display_name':'Visit Bounce Rate', 'name':'extensions_visitBounceRate_f', 'type':'float' },
-                { 'display_name':'Average Time on Site', 'name':'extensions_avgTimeOnSite_f', 'type':'float'},
                 { 'display_name':'Organic Searches', 'name':'extensions_organicSearches_f', 'type':'float'},
                 { 'display_name':'Page Views', 'name':'extensions_pageviews_f', 'type':'float'},
                 { 'display_name':'Page Views per Visit', 'name':'extensions_pageviewsPerVisit_f', 'type':'float'},
@@ -138,27 +132,11 @@ class DataPoint(BaseDataPoint):
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
-                "   {{if (typeof extensions_entranceBounceRate_f !== 'undefined')}}"\
-                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
-                "       <label>Enterance Bounce Rate</label>"\
-                "       <span style='font-weight:bold;'>"\
-                "           <a class='action_inline_range_filter' data-facet_name='extensions_entranceBounceRate_f' data-facet_value='${extensions_entranceBounceRate_f}'>${extensions_entranceBounceRate_f}&#37;</a>"\
-                "       </span>" \
-                "   </li>" \
-                "   {{/if}}"\
                 "   {{if (typeof extensions_visitBounceRate_f !== 'undefined')}}"\
                 "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
                 "       <label>Visit Bounce Rate</label>"\
                 "       <span style='font-weight:bold;'>"\
                 "           <a class='action_inline_range_filter' data-facet_name='extensions_visitBounceRate_f' data-facet_value='${extensions_visitBounceRate_f}'>${extensions_visitBounceRate_f}&#37;</a>"\
-                "       </span>" \
-                "   </li>" \
-                "   {{/if}}"\
-                "   {{if (typeof extensions_avgTimeOnSite_f !== 'undefined')}}"\
-                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
-                "       <label>Average Time on Site</label>"\
-                "       <span style='font-weight:bold;'>"\
-                "           <a class='action_inline_range_filter' data-facet_name='extensions_avgTimeOnSite_f' data-facet_value='${extensions_avgTimeOnSite_f}'>${extensions_avgTimeOnSite_f}</a>"\
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
