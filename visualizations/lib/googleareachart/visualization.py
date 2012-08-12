@@ -1,5 +1,5 @@
+import datetime
 from django.utils.html import escape
-from utils import get_pretty_date
 from metalayercore.visualizations.classes import VisualizationBase
 from django.utils import simplejson as json
 
@@ -14,13 +14,20 @@ class Visualization(VisualizationBase):
             'display_name_short':'Area',
             'display_name_long':'Area chart',
             'image_small':'/static/images/thedashboard/area_chart.png',
-            'unconfigurable_message':'There is no category data available to be plotted. Try adding something like '
-                                     'sentiment analysis',
-            'instructions':'Area charts make it really easy to contrast discrete category based data over time.',
-            'filter_message':'Click a point to filter the results above',
+            'unconfigurable_message':'There is no data graph',
+            'instructions':"""Area charts can be used to graph numeric or category based data over time.""",
+            'filter_message':'This type of chart does not support filtering',
             'type':'javascript',
             'configured':False,
             'elements':[
+                {
+                    'name':'xaxis',
+                    'display_name':'Graph over',
+                    'help':'',
+                    'type':'select',
+                    'values':['Days'],
+                    'value':'Days'
+                },
                 self._generate_colorscheme_config_element(),
                 {
                     'name':'background',
@@ -44,8 +51,8 @@ class Visualization(VisualizationBase):
             'data_dimensions':[
                 {
                     'name':'category1',
-                    'display_name':'Areas',
-                    'type':['string'],
+                    'display_name':'Metric 1',
+                    'type':['string', 'float'],
                     'help':''
                 }
             ]
@@ -54,14 +61,15 @@ class Visualization(VisualizationBase):
     def generate_search_query_data(self, config, search_configuration):
         return_data = []
         start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = int((end_time - start_time) / self.steps_backwards)
+        time_interval = int((end_time - start_time) / self._days_between_start_and_end_time(start_time, end_time))
         for s in range(start_time, end_time, time_interval):
             this_search = []
             for dimension in config['data_dimensions']:
-                this_search.append({
-                    'name':dimension['value']['value'],
-                    'type':'basic_facet'
-                })
+                if dimension['value']['type'] == 'string':
+                    this_search.append({
+                        'name':dimension['value']['value'],
+                        'type':'basic_facet'
+                    })
             this_search.append({
                 'name':'time',
                 'range':{'start':s, 'end':(s + time_interval - 1)},
@@ -71,7 +79,6 @@ class Visualization(VisualizationBase):
         return return_data
 
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
-        data_dimension = config['data_dimensions'][0]['value']['value']
         js = ""\
              "$.getScript\n"\
              "(\n"\
@@ -90,53 +97,57 @@ class Visualization(VisualizationBase):
              "           );\n"\
              "           var options = {options};\n"\
              "           chart_" + config['id'] + " = new google.visualization.AreaChart(document.getElementById('v_" + config['id'] + "'));\n"\
-             "           function select_handler_" + config['id'] + "(){\n"\
-             "               var selected_item = chart_" + config['id'] + ".getSelection()[0];\n"\
-             "               if (selected_item) {\n"\
-             "                    var data = { filter_name:'" + data_dimension + "', filter_value:data_" + config['id'] + ".getColumnLabel(selected_item.column) }; \n"\
-             "                    $('#v_" + config['id'] + "').parents('.collection_container').dashboard_collection('apply_search_filter', data);\n"\
-             "               }\n"\
-             "           }\n"\
-             "           google.visualization.events.addListener(chart_" + config['id'] + ", 'select', select_handler_" + config['id'] + ");\n"\
              "           chart_" + config['id'] + ".draw(data_" + config['id'] + ", options);\n"\
              "       }\n"\
              "   }\n"\
              ");\n"
 
-        #TODO this only support one data dimension at the moment
         data_columns = [{'type':'string', 'name':'Time'}]
         data_rows = []
-        data_dimensions_value = config['data_dimensions'][0]['value']
+
+        #TODO this only support one data dimension at the moment
+        data_dimension = config['data_dimensions'][0]
+        data_dimension_value = data_dimension['value']
 
         start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = int((end_time - start_time) / self.steps_backwards)
+        time_interval = int((end_time - start_time) / self._days_between_start_and_end_time(start_time, end_time))
 
         array_of_start_times = range(start_time, end_time, time_interval)
+
         results_data_columns = []
-        for search_result in search_results_collection:
-            facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimensions_value['value']][0]['facets']
-            for f in facets:
-                if f['name'] not in results_data_columns:
-                    results_data_columns.append(f['name'])
+
+        if data_dimension_value['type'] == 'string':
+            for search_result in search_results_collection:
+                facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                for f in facets:
+                    if f['name'] not in results_data_columns:
+                        results_data_columns.append(f['name'])
+        else:
+            results_data_columns.append(data_dimension_value['name'])
+
         data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
         number_of_empty_ranges = 0
         for x in range(len(array_of_start_times)):
             if x >= len(search_results_collection):
                 continue
             search_result = search_results_collection[x]
-            start_time_pretty = get_pretty_date(array_of_start_times[x] + time_interval)
+            start_time_pretty = self._get_pretty_date(array_of_start_times[x])
             data_row = [start_time_pretty]
-            facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimensions_value['value']][0]['facets']
-            dynamic_data_rows = []
-            for c in results_data_columns:
-                candidate_facet = [f for f in facets if f['name'] == c]
-                if candidate_facet:
-                    dynamic_data_rows.append(candidate_facet[0]['count'])
-                else:
-                    dynamic_data_rows.append(0)
-            if not sum(dynamic_data_rows):
-                number_of_empty_ranges += 1
-            data_row += dynamic_data_rows
+
+            if data_dimension_value['type'] == 'string':
+                facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                dynamic_data_rows = []
+                for c in results_data_columns:
+                    candidate_facet = [f for f in facets if f['name'] == c]
+                    if candidate_facet:
+                        dynamic_data_rows.append(candidate_facet[0]['count'])
+                    else:
+                        dynamic_data_rows.append(0)
+                if not sum(dynamic_data_rows):
+                    number_of_empty_ranges += 1
+                data_row += dynamic_data_rows
+            else:
+                data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
             data_rows.append(data_row)
         if number_of_empty_ranges == len(array_of_start_times):
             return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
@@ -192,3 +203,9 @@ class Visualization(VisualizationBase):
         js = js.replace('{data_rows}', data_rows)
         js = js.replace('{options}', options)
         return js
+
+    def _days_between_start_and_end_time(self, start_time, end_time):
+        return ((end_time - start_time) / 86400) or 1
+
+    def _get_pretty_date(self, time_value):
+        return (datetime.date.fromtimestamp(time_value) + datetime.timedelta(1)).strftime('%m/%d/%y')
