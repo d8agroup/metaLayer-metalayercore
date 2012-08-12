@@ -36,13 +36,12 @@ class GoogleOauth2Controller(object):
 
     @classmethod
     def PollForNewCredentials(cls, flow):
-        while 1:
-            storage = GoogleOauth2StorageObject(flow.params['state'])
-            credentials = storage.get()
-            if credentials:
-                if not credentials.invalid:
-                    return credentials
-            time.sleep(2)
+        storage = GoogleOauth2StorageObject(flow.params['state'])
+        credentials = storage.get()
+        if credentials:
+            if not credentials.invalid:
+                return credentials
+        return None
 
     @classmethod
     def HandleOauth2Return(cls, request):

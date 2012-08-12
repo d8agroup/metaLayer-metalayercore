@@ -227,6 +227,8 @@ class DataPoint(BaseDataPoint):
 
     def oauth_poll_for_new_credentials(self, config):
         credentials = GoogleOauth2Controller.PollForNewCredentials(self.oauth_get_oauth2_return_handler(config['id']))
+        if not credentials:
+            return None
         oauth_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
         oauth_element['value'] = credentials.to_json()
         return config
