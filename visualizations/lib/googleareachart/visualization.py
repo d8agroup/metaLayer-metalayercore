@@ -2,6 +2,7 @@ import datetime
 from django.utils.html import escape
 from metalayercore.visualizations.classes import VisualizationBase
 from django.utils import simplejson as json
+from utils import get_pretty_date
 
 class Visualization(VisualizationBase):
 
@@ -25,8 +26,8 @@ class Visualization(VisualizationBase):
                     'display_name':'Graph over',
                     'help':'',
                     'type':'select',
-                    'values':['Days'],
-                    'value':'Days'
+                    'values':['Time'],
+                    'value':'Time'
                 },
                 self._generate_colorscheme_config_element(),
                 {
@@ -49,19 +50,16 @@ class Visualization(VisualizationBase):
                 }
             ],
             'data_dimensions':[
-                {
-                    'name':'category1',
-                    'display_name':'Metric 1',
-                    'type':['string', 'float'],
-                    'help':''
-                }
+                { 'name':'category1', 'display_name':'Metric 1', 'type':['string', 'float'], 'help':'' },
+                { 'name':'category2', 'display_name':'Metric 2', 'type':['string', 'float'], 'help':'' },
             ]
         }
 
     def generate_search_query_data(self, config, search_configuration):
         return_data = []
         start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = int((end_time - start_time) / self._days_between_start_and_end_time(start_time, end_time))
+        time_interval = self._days_between_start_and_end_time(start_time, end_time) or self.steps_backwards
+        time_interval = int((end_time - start_time) / time_interval)
         for s in range(start_time, end_time, time_interval):
             this_search = []
             for dimension in config['data_dimensions']:
@@ -102,28 +100,29 @@ class Visualization(VisualizationBase):
              "   }\n"\
              ");\n"
 
+        #TODO: eventually this need to support other types of x-axis
         data_columns = [{'type':'string', 'name':'Time'}]
         data_rows = []
 
-        #TODO this only support one data dimension at the moment
-        data_dimension = config['data_dimensions'][0]
-        data_dimension_value = data_dimension['value']
-
         start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = int((end_time - start_time) / self._days_between_start_and_end_time(start_time, end_time))
-
+        time_interval = self._days_between_start_and_end_time(start_time, end_time) or self.steps_backwards
+        time_interval = int((end_time - start_time) / time_interval)
         array_of_start_times = range(start_time, end_time, time_interval)
 
-        results_data_columns = []
 
-        if data_dimension_value['type'] == 'string':
-            for search_result in search_results_collection:
-                facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
-                for f in facets:
-                    if f['name'] not in results_data_columns:
-                        results_data_columns.append(f['name'])
-        else:
-            results_data_columns.append(data_dimension_value['name'])
+        data_dimensions = [d for d in config['data_dimensions'] if d['value']['value']]
+
+        results_data_columns = []
+        for data_dimension_value in [d['value'] for d in data_dimensions]:
+            if data_dimension_value['type'] != 'string':
+                results_data_columns.append(data_dimension_value['name'])
+            else:
+                for search_result in search_results_collection:
+                    facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                    for f in facets:
+                        if f['name'] not in results_data_columns:
+                            results_data_columns.append(f['name'])
+
 
         data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
         number_of_empty_ranges = 0
@@ -131,24 +130,26 @@ class Visualization(VisualizationBase):
             if x >= len(search_results_collection):
                 continue
             search_result = search_results_collection[x]
-            start_time_pretty = self._get_pretty_date(array_of_start_times[x])
+            start_time_pretty = self._get_pretty_date(array_of_start_times[x], self._days_between_start_and_end_time(start_time, end_time))
             data_row = [start_time_pretty]
 
-            if data_dimension_value['type'] == 'string':
-                facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
-                dynamic_data_rows = []
-                for c in results_data_columns:
-                    candidate_facet = [f for f in facets if f['name'] == c]
-                    if candidate_facet:
-                        dynamic_data_rows.append(candidate_facet[0]['count'])
-                    else:
-                        dynamic_data_rows.append(0)
-                if not sum(dynamic_data_rows):
-                    number_of_empty_ranges += 1
-                data_row += dynamic_data_rows
-            else:
-                data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
-            data_rows.append(data_row)
+            for data_dimension_value in [d['value'] for d in data_dimensions]:
+                if data_dimension_value['type'] == 'string':
+                    facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                    dynamic_data_rows = []
+                    for c in results_data_columns:
+                        candidate_facet = [f for f in facets if f['name'] == c]
+                        if candidate_facet:
+                            dynamic_data_rows.append(candidate_facet[0]['count'])
+                        else:
+                            dynamic_data_rows.append(0)
+                    if not sum(dynamic_data_rows):
+                        number_of_empty_ranges += 1
+                    data_row += dynamic_data_rows
+                else:
+                    data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
+                data_rows.append(data_row)
+
         if number_of_empty_ranges == len(array_of_start_times):
             return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
 
@@ -205,7 +206,11 @@ class Visualization(VisualizationBase):
         return js
 
     def _days_between_start_and_end_time(self, start_time, end_time):
-        return ((end_time - start_time) / 86400) or 1
+        return (end_time - start_time) / 86400
 
-    def _get_pretty_date(self, time_value):
-        return (datetime.date.fromtimestamp(time_value) + datetime.timedelta(1)).strftime('%m/%d/%y')
+    def _get_pretty_date(self, time_value, days_in_time_range):
+        if days_in_time_range:
+            formatted_time = (datetime.date.fromtimestamp(time_value) + datetime.timedelta(1)).strftime('%m/%d/%y')
+        else:
+            formatted_time = get_pretty_date(time_value)
+        return formatted_time
