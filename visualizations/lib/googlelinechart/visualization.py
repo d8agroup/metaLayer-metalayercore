@@ -11,12 +11,12 @@ class Visualization(VisualizationBase):
 
     def get_unconfigured_config(self):
         return {
-            'name':'googleareachart',
-            'display_name_short':'Area',
-            'display_name_long':'Area chart',
+            'name':'googlelinechart',
+            'display_name_short':'Line',
+            'display_name_long':'Line Chart',
             'image_small':'/static/images/thedashboard/area_chart.png',
             'unconfigurable_message':'There is no data graph',
-            'instructions':"""Area charts can be used to graph numeric or category based data over time.""",
+            'instructions':"""Line charts can be used to graph numeric or category based data over time.""",
             'filter_message':'This type of chart does not support filtering',
             'type':'javascript',
             'configured':False,
@@ -46,7 +46,7 @@ class Visualization(VisualizationBase):
                     'display_name':'Chart Title',
                     'help':'',
                     'type':'text',
-                    'value':'Area Chart'
+                    'value':'Line Chart'
                 }
             ],
             'data_dimensions':[
@@ -95,7 +95,7 @@ class Visualization(VisualizationBase):
              "               {data_rows}\n"\
              "           );\n"\
              "           var options = {options};\n"\
-             "           chart_" + config['id'] + " = new google.visualization.AreaChart(document.getElementById('v_" + config['id'] + "'));\n"\
+             "           chart_" + config['id'] + " = new google.visualization.LineChart(document.getElementById('v_" + config['id'] + "'));\n"\
              "           chart_" + config['id'] + ".draw(data_" + config['id'] + ", options);\n"\
              "       }\n"\
              "   }\n"\
@@ -148,7 +148,10 @@ class Visualization(VisualizationBase):
                         number_of_empty_ranges += 1
                     data_row += dynamic_data_rows
                 else:
-                    data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
+                    if data_dimension_value['value'] in search_result['stats'] and search_result['stats'][data_dimension_value['value']]:
+                        data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
+                    else:
+                        data_row.append(0)
                 data_rows.append(data_row)
 
         if number_of_empty_ranges == len(array_of_start_times):
