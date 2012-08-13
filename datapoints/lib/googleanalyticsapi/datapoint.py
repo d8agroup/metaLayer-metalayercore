@@ -69,14 +69,14 @@ class DataPoint(BaseDataPoint):
                     'display_name':'Start Date',
                     'help':'',
                     'type':'date_time',
-                    'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%d/%m/%Y"),
+                    'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%m/%d/%Y"),
                 },
                 {
                     'name':'end_date',
                     'display_name':'End Date',
                     'help':'',
                     'type':'date_time',
-                    'value':datetime.datetime.now().strftime("%d/%m/%Y"),
+                    'value':datetime.datetime.now().strftime("%m/%d/%Y"),
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
                 self._generate_base_search_end_time_config_element()
@@ -195,6 +195,17 @@ class DataPoint(BaseDataPoint):
         number_of_metrics_chosen = len(metrics_element['value'])
         if number_of_metrics_chosen > 10:
             return False, { 'metrics':['You have chosen %i metrics, the limit is 10' % number_of_metrics_chosen] }
+
+        start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
+        start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+        end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
+        end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y')
+
+        if not end_date > start_date:
+            return False, { 'start_date': ['Start Date must be before the End Date'] }
+        if (end_date - start_date).days > 30:
+            return False, { 'end_date': ['At present, no more than 30 days of data can be collected.'] }
+
         return True, {}
 
     def perform_post_validation_configuration_changes(self, config):
@@ -203,10 +214,10 @@ class DataPoint(BaseDataPoint):
         """
         start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
         start_time_element = [e for e in config['elements'] if e['name'] == 'start_time'][0]
-        start_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(start_date, '%d/%m/%Y').timetuple())
+        start_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(start_date, '%m/%d/%Y').timetuple())
         end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
         end_time_element = [e for e in config['elements'] if e['name'] == 'end_time'][0]
-        end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%d/%m/%Y').timetuple())
+        end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%m/%d/%Y').timetuple())
         return config
 
     def oauth_get_oauth2_return_handler(self, data_point_id):
@@ -265,8 +276,8 @@ class DataPoint(BaseDataPoint):
         service = build('analytics', 'v3', http=http)
         query_data = service.data().ga().get(
             ids = 'ga:' + [e for e in config['elements'] if e['name'] == 'account'][0]['value'],
-            start_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'start_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
-            end_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'end_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
+            start_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'start_date'][0]['value'], '%m/%d/%Y').strftime('%Y-%m-%d'),
+            end_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'end_date'][0]['value'], '%m/%d/%Y').strftime('%Y-%m-%d'),
             metrics = ','.join([e for e in config['elements'] if e['name'] == 'metrics'][0]['value']),
             dimensions = 'ga:date',
             sort = 'ga:date',
