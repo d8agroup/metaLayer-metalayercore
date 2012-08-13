@@ -13,6 +13,7 @@ class DataPoint(BaseDataPoint):
         return {
             'type':'twittersearch',
             'sub_type':'twittersearch',
+            'is_live':True,
             'display_name_short':'Twitter',
             'full_display_name':'Twitter Search',
             'instructions':'Use this data point to search the public tweet stream.',
@@ -20,23 +21,18 @@ class DataPoint(BaseDataPoint):
             'image_medium':'/static/images/thedashboard/data_points/twitter_medium.png',
             'image_small':'/static/images/thedashboard/data_points/twitter_small.png',
             'configured':False,
-            'elements':[
-                {
-                    'name':'keywords',
-                    'display_name':'What to search for',
-                    'help':'The keywords or hashtags that you want to use to search Twitter',
-                    'type':'text',
-                    'value':''
-                },
+            'elements':[{
+                'name':'keywords',
+                'display_name':'What to search for',
+                'help':'The keywords or hashtags that you want to use to search Twitter',
+                'type':'text',
+                'value':''},
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
-                self._generate_base_search_end_time_config_element()
-            ],
+                self._generate_base_search_end_time_config_element()],
             'meta_data':[{
                 'display_name':'Twitter Username',
                 'name':'extensions_twitterusername_s',
-                'type':'string'
-            }]
-        }
+                'type':'string'}]}
 
     def get_content_item_template(self):
         return ""\

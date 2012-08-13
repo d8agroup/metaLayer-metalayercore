@@ -1,17 +1,12 @@
-import datetime
-from django.conf import settings
-from apiclient.discovery import build
-import httplib2
-from oauth2client.client import  OAuth2WebServerFlow, Credentials
-import re
-import time
-from metalayercore.datapoints.classes import BaseDataPoint
-from dateutil import parser as dateutil_parser, tz
-from urlparse import urlparse
-from hashlib import md5
-import feedparser
-from logger import Logger
+import calendar
 from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
+from oauth2client.client import  OAuth2WebServerFlow, Credentials
+from metalayercore.datapoints.classes import BaseDataPoint
+from apiclient.discovery import build
+from hashlib import md5
+import httplib2
+import datetime
+import time
 
 class DataPoint(BaseDataPoint):
     flow = OAuth2WebServerFlow(
@@ -58,9 +53,15 @@ class DataPoint(BaseDataPoint):
                     'type':'multiple_select',
                     'value':'',
                     'values':[
-                        {'name':'Visitors', 'value':'ga:visitors'},
-                        {'name':'New Visits', 'value':'ga:newVisits'},
-                        {'name':'Percent New Visits', 'value':'ga:percentNewVisits'},
+                        {'name':'Visitors', 'value':'ga:visitors', 'option_group':'Visitor'},
+                        {'name':'New Visits', 'value':'ga:newVisits', 'option_group':'Visitor'},
+                        {'name':'Visits', 'value':'ga:visits', 'option_group':'Session'},
+                        {'name':'Bounces', 'value':'ga:bounces', 'option_group':'Session'},
+                        {'name':'Visit Bounce Rate', 'value':'ga:visitBounceRate', 'option_group':'Session'},
+                        {'name':'Organic Searches', 'value':'ga:organicSearches', 'option_group':'Traffic Sources'},
+                        {'name':'Page Views', 'value':'ga:pageviews', 'option_group':'Page Tracking'},
+                        {'name':'Page Views per Visit', 'value':'ga:pageviewsPerVisit', 'option_group':'Page Tracking'},
+                        {'name':'Unique Page Views', 'value':'ga:uniquePageviews', 'option_group':'Page Tracking'},
                     ]
                 },
                 {
@@ -68,29 +69,28 @@ class DataPoint(BaseDataPoint):
                     'display_name':'Start Date',
                     'help':'',
                     'type':'date_time',
-                    'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%d/%m/%Y"),
+                    'value':(datetime.datetime.now() + datetime.timedelta(-30)).strftime("%m/%d/%Y"),
                 },
                 {
                     'name':'end_date',
                     'display_name':'End Date',
                     'help':'',
                     'type':'date_time',
-                    'value':datetime.datetime.now().strftime("%d/%m/%Y"),
+                    'value':datetime.datetime.now().strftime("%m/%d/%Y"),
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
                 self._generate_base_search_end_time_config_element()
             ],
             'meta_data':[
-                {
-                    'display_name':'Total Visitors',
-                    'name':'extensions_visitors_f',
-                    'type':'float'
-                },
-                {
-                    'display_name':'Visitors',
-                    'name':'extensions_newVisits_f',
-                    'type':'float'
-                },
+                { 'display_name':'Total Visitors', 'name':'extensions_visitors_f', 'type':'float' },
+                { 'display_name':'Visitors', 'name':'extensions_newVisits_f', 'type':'float' },
+                { 'display_name':'Visits', 'name':'extensions_visits_f', 'type':'float' },
+                { 'display_name':'Bounces', 'name':'extensions_bounces_f', 'type':'float' },
+                { 'display_name':'Visit Bounce Rate', 'name':'extensions_visitBounceRate_f', 'type':'float' },
+                { 'display_name':'Organic Searches', 'name':'extensions_organicSearches_f', 'type':'float'},
+                { 'display_name':'Page Views', 'name':'extensions_pageviews_f', 'type':'float'},
+                { 'display_name':'Page Views per Visit', 'name':'extensions_pageviewsPerVisit_f', 'type':'float'},
+                { 'display_name':'Unique Page Views', 'name':'extensions_uniquePageviews_f', 'type':'float'},
             ]
         }
 
@@ -100,19 +100,75 @@ class DataPoint(BaseDataPoint):
                 "<img src='/static/images/thedashboard/data_points/ga_small.png' style='width:20px; padding-right:10px;' align='left'/>"\
                 "<p style='padding-left:30px;'><span style='font-weight:bold'> ${title}</span></p>"\
                 "<ul style='padding-left:30px;' class='actions'>" \
-                "   {{if (extensions_visitors_f || extensions_visitors_f == 0)}}"\
-                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
-                "       <label>Visits</label>"\
+                "   {{if (typeof extensions_visitors_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visitors</label>"\
                 "       <span style='font-weight:bold;'>"\
                 "           <a class='action_inline_range_filter' data-facet_name='extensions_visitors_f' data-facet_value='${extensions_visitors_f}'>${extensions_visitors_f}</a>"\
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
-                "   {{if (extensions_newVisits_f || extensions_newVisits_f == 0)}}"\
-                "    <li class='action_values' style='margin-top:5px; display:inline-block; width:40%;'>"\
+                "   {{if (typeof extensions_newVisits_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
                 "       <label>New Visits</label>"\
                 "       <span style='font-weight:bold;'>"\
                 "           <a class='action_inline_range_filter' data-facet_name='extensions_newVisits_f' data-facet_value='${extensions_newVisits_f}'>${extensions_newVisits_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_visits_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visits</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_visits_f' data-facet_value='${extensions_visits_f}'>${extensions_visits_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_bounces_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Bounces</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_bounce_f' data-facet_value='${extensions_bounces_f}'>${extensions_bounces_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_visitBounceRate_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Visit Bounce Rate</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_visitBounceRate_f' data-facet_value='${extensions_visitBounceRate_f}'>${extensions_visitBounceRate_f}&#37;</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_organicSearches_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Organic Searches</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_organicSearches_f' data-facet_value='${extensions_organicSearches_f}'>${extensions_organicSearches_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_pageviews_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Page Views</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_pageviews_f' data-facet_value='${extensions_pageviews_f}'>${extensions_pageviews_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_pageviewsPerVisit_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Page Views Per Visit</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_pageviewsPerVisit_f' data-facet_value='${extensions_pageviewsPerVisit_f}'>${extensions_pageviewsPerVisit_f}</a>"\
+                "       </span>" \
+                "   </li>" \
+                "   {{/if}}"\
+                "   {{if (typeof extensions_uniquePageviews_f !== 'undefined')}}"\
+                "    <li class='action_values' style='margin-top:2px; display:inline-block; width:32%;'>"\
+                "       <label>Unique Page Views</label>"\
+                "       <span style='font-weight:bold;'>"\
+                "           <a class='action_inline_range_filter' data-facet_name='extensions_uniquePageviews_f' data-facet_value='${extensions_uniquePageviews_f}'>${extensions_uniquePageviews_f}</a>"\
                 "       </span>" \
                 "   </li>" \
                 "   {{/if}}"\
@@ -120,8 +176,11 @@ class DataPoint(BaseDataPoint):
                 "</li>"
 
     def generate_configured_guid(self, config):
+        id = config.get('id')
+        if id:
+            return id
         account_id = [e for e in config['elements'] if e['name'] == 'account'][0]['value']
-        return md5(account_id).hexdigest()
+        return md5('%s %i' % (account_id, int(time.time()))).hexdigest()
 
     def generate_configured_display_name(self, config):
         account_element = [e for e in config['elements'] if e['name'] == 'account'][0]
@@ -136,7 +195,30 @@ class DataPoint(BaseDataPoint):
         number_of_metrics_chosen = len(metrics_element['value'])
         if number_of_metrics_chosen > 10:
             return False, { 'metrics':['You have chosen %i metrics, the limit is 10' % number_of_metrics_chosen] }
+
+        start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
+        start_date = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+        end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
+        end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y')
+
+        if not end_date > start_date:
+            return False, { 'start_date': ['Start Date must be before the End Date'] }
+        if (end_date - start_date).days > 30:
+            return False, { 'end_date': ['At present, no more than 30 days of data can be collected.'] }
+
         return True, {}
+
+    def perform_post_validation_configuration_changes(self, config):
+        """
+        Take the date strings entered into the data point config and set the start and end time elements
+        """
+        start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
+        start_time_element = [e for e in config['elements'] if e['name'] == 'start_time'][0]
+        start_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(start_date, '%m/%d/%Y').timetuple())
+        end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
+        end_time_element = [e for e in config['elements'] if e['name'] == 'end_time'][0]
+        end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%m/%d/%Y').timetuple())
+        return config
 
     def oauth_get_oauth2_return_handler(self, data_point_id):
         flow = self.flow
@@ -156,6 +238,8 @@ class DataPoint(BaseDataPoint):
 
     def oauth_poll_for_new_credentials(self, config):
         credentials = GoogleOauth2Controller.PollForNewCredentials(self.oauth_get_oauth2_return_handler(config['id']))
+        if not credentials:
+            return None
         oauth_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
         oauth_element['value'] = credentials.to_json()
         return config
@@ -192,8 +276,8 @@ class DataPoint(BaseDataPoint):
         service = build('analytics', 'v3', http=http)
         query_data = service.data().ga().get(
             ids = 'ga:' + [e for e in config['elements'] if e['name'] == 'account'][0]['value'],
-            start_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'start_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
-            end_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'end_date'][0]['value'], '%d/%m/%Y').strftime('%Y-%m-%d'),
+            start_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'start_date'][0]['value'], '%m/%d/%Y').strftime('%Y-%m-%d'),
+            end_date = datetime.datetime.strptime([e for e in config['elements'] if e['name'] == 'end_date'][0]['value'], '%m/%d/%Y').strftime('%Y-%m-%d'),
             metrics = ','.join([e for e in config['elements'] if e['name'] == 'metrics'][0]['value']),
             dimensions = 'ga:date',
             sort = 'ga:date',
@@ -204,23 +288,32 @@ class DataPoint(BaseDataPoint):
         for row in rows:
             configured_display_name = self.generate_configured_display_name(config)
             content_item = {
-                'id':md5('%s-%s' % (self.generate_configured_guid(config), row[0])).hexdigest(),
+                'id':md5('%s-%s' % (config['id'], row[0])).hexdigest(),
                 'text':[{'title':'%s Data for %s' % (configured_display_name, datetime.datetime.strptime(row[0], '%Y%m%d').strftime('%m/%d/%Y'))}],
-                'time':int(time.time()),
+                'time':int(calendar.timegm(datetime.datetime.strptime(row[0], '%Y%m%d').timetuple())),
                 'channel':{
                     'id':md5(config['type'] + config['sub_type']).hexdigest(),
                     'type':config['type'],
                     'sub_type':config['sub_type']},
                 'source':{
-                    'id':self.generate_configured_guid(config),
+                    'id':config['id'],
                     'display_name':self.generate_configured_display_name(config)},
                 'extensions':{}}
-            for c in range(1, len(columns[1:])):
+            for c in range(1, len(columns)):
                 header = columns[c]
                 value = row[c]
+                if header['dataType'] in ['INTEGER']:
+                    value = int(value)
+                    value_type = 'float'
+                elif header['dataType'] in ['FLOAT', 'CURRENCY', 'PERCENT']:
+                    value = round(float(value), 2)
+                    value_type = 'float'
+                else:
+                    value = str(value)
+                    value_type = 'string'
                 content_item['extensions'][header['name'].replace('ga:', '')] = {
-                    'type':'float' if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else 'string',
-                    'value':float(value) if header['dataType'] in ['INTEGER', 'FLOAT', 'CURRENCY'] else str(value)
+                    'type':value_type,
+                    'value': value
                 }
 
             content_items.append(content_item)

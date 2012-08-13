@@ -1,7 +1,25 @@
+from metalayercore.oauth2bridge.models import GoogleOauth2StorageObject, CredentialsStoreObjects
 from metalayercore.datapoints.controllers import DataPointController
-from oauth2client.file import Storage
 from django.conf import settings
 import time
+
+class Oauth2Controller(object):
+    @classmethod
+    def PersistCredentialsStore(cls, id, store_json):
+        try:
+            store_object = CredentialsStoreObjects.objects.get(key=id)
+        except CredentialsStoreObjects.DoesNotExist:
+            store_object = CredentialsStoreObjects(key=id)
+        store_object.store = store_json
+        store_object.save()
+
+    @classmethod
+    def RetrieveCredentialsStore(cls, id):
+        try:
+            store_object = CredentialsStoreObjects.objects.get(key=id)
+            return store_object.store
+        except CredentialsStoreObjects.DoesNotExist:
+            return None
 
 class GoogleOauth2Controller(object):
     @classmethod
@@ -18,12 +36,12 @@ class GoogleOauth2Controller(object):
 
     @classmethod
     def PollForNewCredentials(cls, flow):
-        while 1:
-            storage = Storage('/tmp/%s.json' % flow.params['state'])
-            credentials = storage.get()
-            if credentials and not credentials.invalid:
+        storage = GoogleOauth2StorageObject(flow.params['state'])
+        credentials = storage.get()
+        if credentials:
+            if not credentials.invalid:
                 return credentials
-            time.sleep(2)
+        return None
 
     @classmethod
     def HandleOauth2Return(cls, request):
@@ -31,7 +49,5 @@ class GoogleOauth2Controller(object):
         flow = DataPointController.LoadDataPoint(data_point_type).oauth_get_oauth2_return_handler(data_point_id)
         flow = cls._EnhanceFlowObject(flow)
         credentials = flow.step2_exchange(request.REQUEST)
-        storage = Storage('/tmp/%s.json' % flow.params['state'])
+        storage = GoogleOauth2StorageObject(flow.params['state'])
         storage.put(credentials)
-
-

@@ -14,6 +14,7 @@ class DataPoint(BaseDataPoint):
         return {
             'type':'googlenewssearch',
             'sub_type':'googlenewssearch',
+            'is_live':True,
             'display_name_short':'Google News',
             'full_display_name':'Google News',
             'instructions':'Use this data point to search Google news.',

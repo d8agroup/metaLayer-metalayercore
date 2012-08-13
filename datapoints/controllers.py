@@ -75,6 +75,22 @@ class DataPointController(object):
         Logger.Info('%s - DataPointController.is_valid - finished' % __name__)
         return passed, errors
 
+    def perform_post_validation_configuration_changes(self):
+        """
+        Update any data point attributes based on the valid config
+
+        Notes
+        -----
+        Used for things like taking UI friendly date and time config and propagating the values to other config elements
+
+        Returns
+        -------
+        Dict: the data point config with any updates made
+        """
+        type = self.data_point['type']
+        data_point = DataPointController.LoadDataPoint(type)
+        return data_point.perform_post_validation_configuration_changes(self.data_point)
+
     def oauth_credentials_are_valid(self, credentials_json):
         type = self.data_point['type']
         data_point = DataPointController.LoadDataPoint(type)
