@@ -211,13 +211,27 @@ class DataPoint(BaseDataPoint):
     def perform_post_validation_configuration_changes(self, config):
         """
         Take the date strings entered into the data point config and set the start and end time elements
+
+        Note
+        ----
+        This method also updated the GUID config element to ensure that the aggregation controller does not filter out
+        content before it is sent to the search server based on time.
         """
         start_date = [e for e in config['elements'] if e['name'] == 'start_date'][0]['value']
         start_time_element = [e for e in config['elements'] if e['name'] == 'start_time'][0]
         start_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(start_date, '%m/%d/%Y').timetuple())
+
         end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
         end_time_element = [e for e in config['elements'] if e['name'] == 'end_time'][0]
         end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%m/%d/%Y').timetuple())
+        
+        config['elements'].append({
+            'name':'guid',
+            'display_name':'Guid',
+            'help':'',
+            'type':'hidden',
+            'value':config['id']})
+
         return config
 
     def oauth_get_oauth2_return_handler(self, data_point_id):
