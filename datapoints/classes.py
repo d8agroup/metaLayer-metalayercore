@@ -19,6 +19,7 @@ class BaseDataPoint(object):
             'id': 12345,                            # An ID for this piece of content. Implementations must decide if this should be globally unique or not.
             'time': TODO:                           # The time this content was created or last updated.
             'link': 'http://twitter.com/foo/1234',  # A URI to the canonical source.
+            'image_s': 'http://foo.com/post.png',   # Image URI for the content item.
             'text': [{
                 'language': 'en_US',                # Language of the content item.
                 'title': 'My Title',                # Title for the item.

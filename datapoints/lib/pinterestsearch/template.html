@@ -1,0 +1,41 @@
+<li style="width:100%;">
+    <a href="${author_link}">
+        <img src="${author_image}" title="Click to view profile on Pinterest" style="width:50px; padding:1px; box-shadow: 3px 3px 3px #111;" align="left" />
+    </a>
+    <p style="float:left; padding:2px 0 0 8px;font-weight:bold;width:40%;overflow:hidden;height:12px;">
+        <a href="${author_link}" title="Click to view profile on Pinterest">
+            ${author_display_name}: ${text}
+        </a>
+    </p>
+    <p style="margin-bottom:2px;text-align:right">
+        <span style="position:relative;bottom:4px;right:10px;">${pretty_date}</span>
+        <img src="/static/images/thedashboard/data_points/pinterest_small.png" style="width:15px;"/>
+    </p>
+    <table style="margin-left:60px;margin-bottom:5px;width:50%;">
+        <tr>
+            <td style="padding-bottom:2px;">
+                <label>Repins</label>
+                <span style="float:right;padding-right:10px;font-weight:bold;">
+                    <a class="action_inline_range_filter" data-facet_name="extensions_repins_f" data-facet_value="${extensions_repins_f}">${parseInt(extensions_repins_f)}</a>
+                </span>
+            </td>
+            <td style="padding-bottom:2px;">
+                <label>Likes</label>
+                <span style="float:right;padding-right:10px;font-weight:bold;">
+                    <a class="action_inline_range_filter" data-facet_name="extensions_likes_f" data-facet_value="${extensions_likes_f}">${parseInt(extensions_likes_f)}</a>
+                </span>
+            </td>
+            <td style="padding-bottom:2px;">
+                <label>Comments</label>
+                <span style="float:right;padding-right:10px;font-weight:bold;">
+                    <a class="action_inline_range_filter" data-facet_name="extensions_comments_f" data-facet_value="${extensions_comments_f}">${parseInt(extensions_comments_f)}</a>
+                </span>
+            </td>
+        </tr>
+    </table>
+    <p style="padding-left:60px;" class="tool_tip" title="Click to view Pin on Pinterest+">
+        <a href="${link}" title="Click to view Pin on Pinterest">
+            <img src="${image_s}" />
+        </a>
+    </p>
+</li>
