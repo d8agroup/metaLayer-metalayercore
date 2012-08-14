@@ -16,7 +16,7 @@ class DataPoint(BaseDataPoint):
             'is_live':True,
             'display_name_short':'Twitter',
             'full_display_name':'Twitter Search',
-            'instructions':'Use this data point to search the public tweet stream.',
+            'instructions':'Use this data point to search the public tweet stream. Twitter entities such as #hashtags, @replies, and $CASHTAGS are available.',
             'image_large':'/static/images/thedashboard/data_points/twitter_large.png',
             'image_medium':'/static/images/thedashboard/data_points/twitter_medium.png',
             'image_small':'/static/images/thedashboard/data_points/twitter_small.png',
