@@ -67,7 +67,7 @@ class Visualization(VisualizationBase):
                     })
             this_search.append({
                 'name':'time',
-                'range':{'start':s, 'end':(s + time_interval - 1)},
+                'range':{'start':s, 'end':(s + time_interval - 100)},
                 'type':'range_query'
             })
             return_data.append(this_search)
@@ -210,7 +210,7 @@ class Visualization(VisualizationBase):
 
     def _get_pretty_date(self, time_value, days_in_time_range):
         if days_in_time_range:
-            formatted_time = (datetime.date.fromtimestamp(time_value) + datetime.timedelta(1)).strftime('%m/%d/%y')
+            formatted_time = datetime.date.fromtimestamp(time_value).strftime('%m/%d/%y')
         else:
             formatted_time = get_pretty_date(time_value)
         return formatted_time
