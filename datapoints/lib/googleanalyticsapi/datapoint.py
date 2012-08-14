@@ -94,8 +94,8 @@ class DataPoint(BaseDataPoint):
                 self._generate_base_search_end_time_config_element()
             ],
             'meta_data':[
-                { 'display_name':'Total Visitors', 'name':'extensions_visitors_f', 'type':'float' },
-                { 'display_name':'Visitors', 'name':'extensions_newVisits_f', 'type':'float' },
+                { 'display_name':'Visitors', 'name':'extensions_visitors_f', 'type':'float' },
+                { 'display_name':'New Visits', 'name':'extensions_newVisits_f', 'type':'float' },
                 { 'display_name':'Visits', 'name':'extensions_visits_f', 'type':'float' },
                 { 'display_name':'Bounces', 'name':'extensions_bounces_f', 'type':'float' },
                 { 'display_name':'Visit Bounce Rate', 'name':'extensions_visitBounceRate_f', 'type':'float' },
@@ -243,6 +243,10 @@ class DataPoint(BaseDataPoint):
             'help':'',
             'type':'hidden',
             'value':config['id']})
+
+        metrics_element = [e for e in config['elements'] if e['name'] == 'metrics'][0]
+        formatted_selected_metrics = ['extensions_%s_f' % m.replace('ga:', '') for m in metrics_element['value']]
+        config['meta_data'] = [m for m in config['meta_data'] if m['name'] in formatted_selected_metrics]
 
         return config
 
