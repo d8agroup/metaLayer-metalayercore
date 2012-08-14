@@ -21,7 +21,11 @@ class DataPoint(BaseDataPoint):
             'sub_type':'googleanalyticsapi',
             'display_name_short':'Google Analytics',
             'full_display_name':'Google Analytics API',
-            'instructions':'Use this data point to access your data in Google Analytics.',
+            'instructions':"""
+                <b>Bring Google Analytics metrics into DeLv.</b><br /><br />
+                Please note that this beta version only support collecting metrics by day.<br/><br/>
+                We are working to support more granular time, AdWords, Custom Variables and Multi-Channel Funnels Reports.
+                """,
             'image_large':'/static/images/thedashboard/data_points/ga_large.png',
             'image_medium':'/static/images/thedashboard/data_points/ga_medium.png',
             'image_small':'/static/images/thedashboard/data_points/ga_small.png',
@@ -39,12 +43,20 @@ class DataPoint(BaseDataPoint):
                 },
                 {
                     'name':'account',
-                    'display_name':'Google Analytics Account',
+                    'display_name':'Collect metrics from',
                     'help':'The Google Analytics Account to get data from.',
                     'type':'select',
                     'value':'',
                     'values':[
                     ]
+                },
+                {
+                    'name':'data_dimension',
+                    'display_name':'Collect metrics by',
+                    'help':'',
+                    'type':'select',
+                    'value':'days',
+                    'values':[ { 'name':'Days', 'value':'days' } ]
                 },
                 {
                     'name':'metrics',
@@ -224,7 +236,7 @@ class DataPoint(BaseDataPoint):
         end_date = [e for e in config['elements'] if e['name'] == 'end_date'][0]['value']
         end_time_element = [e for e in config['elements'] if e['name'] == 'end_time'][0]
         end_time_element['value'] = '%i' % calendar.timegm(datetime.datetime.strptime(end_date, '%m/%d/%Y').timetuple())
-        
+
         config['elements'].append({
             'name':'guid',
             'display_name':'Guid',

@@ -16,19 +16,15 @@ class Visualization(VisualizationBase):
             'display_name_long':'Line Chart',
             'image_small':'/static/images/thedashboard/area_chart.png',
             'unconfigurable_message':'There is no data graph',
-            'instructions':"""Line charts can be used to graph numeric or category based data over time.""",
+            'instructions':"""
+                Line charts can be used to graph numeric or category based data over time. Choose up to three metrics
+                to be graphed together.<br/><br/>
+                <b>Please note that these graphs can take up to twenty seconds to render</b>
+                """,
             'filter_message':'This type of chart does not support filtering',
             'type':'javascript',
             'configured':False,
             'elements':[
-                {
-                    'name':'xaxis',
-                    'display_name':'Graph over',
-                    'help':'',
-                    'type':'select',
-                    'values':['Time'],
-                    'value':'Time'
-                },
                 self._generate_colorscheme_config_element(),
                 {
                     'name':'background',

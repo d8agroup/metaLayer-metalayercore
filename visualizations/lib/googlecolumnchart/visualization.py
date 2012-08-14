@@ -11,19 +11,18 @@ class Visualization(VisualizationBase):
 
     def get_unconfigured_config(self):
         return {
-            'name':'googleareachart',
-            'display_name_short':'Area',
-            'display_name_long':'Area chart',
+            'name':'googlecolumnchart',
+            'display_name_short':'Column',
+            'display_name_long':'Column chart',
             'image_small':'/static/images/thedashboard/area_chart.png',
             'unconfigurable_message':'There is no data graph',
             'instructions':"""
-                Area charts can be used to graph numeric or category based data over time. Choose up to three metrics
-                to be graphed together.<br/><br/>
-                <b>Please note that these graphs can take up to twenty seconds to render</b>
+                Column charts can be used to graph one or more metric over another.</b>
                 """,
             'filter_message':'This type of chart does not support filtering',
             'type':'javascript',
             'configured':False,
+            'number_of_required_dimensions':2,
             'elements':[
                 self._generate_colorscheme_config_element(),
                 {
@@ -46,7 +45,7 @@ class Visualization(VisualizationBase):
                 }
             ],
             'data_dimensions':[
-                { 'name':'category1', 'display_name':'Metric 1', 'type':['string', 'float'], 'help':'' },
+                { 'name':'xaxis', 'display_name':'Graph Over', 'type':['float'], 'help':'' },
                 { 'name':'category2', 'display_name':'Metric 2', 'type':['string', 'float'], 'help':'' },
                 { 'name':'category3', 'display_name':'Metric 3', 'type':['string', 'float'], 'help':'' },
             ]
@@ -54,10 +53,12 @@ class Visualization(VisualizationBase):
 
     def generate_search_query_data(self, config, search_configuration):
         return_data = []
-        start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = self._days_between_start_and_end_time(start_time, end_time) or self.steps_backwards
-        time_interval = int((end_time - start_time) / time_interval)
-        for s in range(start_time, end_time, time_interval):
+
+        xaxis_dimension = [d for d in config['data_dimensions'] if d['name'] == 'xaxis'][0]
+        xaxis_metric = xaxis_dimension['value']['value']
+        max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_metric]
+        interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
+        for s in range(max_and_min['min'], max_and_min['max'], interval):
             this_search = []
             for dimension in config['data_dimensions']:
                 if dimension['value']['type'] == 'string':
@@ -65,12 +66,10 @@ class Visualization(VisualizationBase):
                         'name':dimension['value']['value'],
                         'type':'basic_facet'
                     })
-            this_search.append({
-                'name':'time',
-                'range':{'start':s, 'end':(s + time_interval - 1)},
-                'type':'range_query'
-            })
+            range_query = {'name': xaxis_metric, 'range': {'start': s, 'end': (s + interval - 1)}, 'type': 'range_query'}
+            this_search.append(range_query)
             return_data.append(this_search)
+
         return return_data
 
     def render_javascript_based_visualization(self, config, search_results_collection, search_configuration):
@@ -91,23 +90,21 @@ class Visualization(VisualizationBase):
              "               {data_rows}\n"\
              "           );\n"\
              "           var options = {options};\n"\
-             "           chart_" + config['id'] + " = new google.visualization.AreaChart(document.getElementById('v_" + config['id'] + "'));\n"\
+             "           chart_" + config['id'] + " = new google.visualization.ColumnChart(document.getElementById('v_" + config['id'] + "'));\n"\
              "           chart_" + config['id'] + ".draw(data_" + config['id'] + ", options);\n"\
              "       }\n"\
              "   }\n"\
              ");\n"
 
-        #TODO: eventually this need to support other types of x-axis
-        data_columns = [{'type':'string', 'name':'Time'}]
         data_rows = []
 
-        start_time, end_time = self._extract_time_bounds_from_search_configuration(search_configuration)
-        time_interval = self._days_between_start_and_end_time(start_time, end_time) or self.steps_backwards
-        time_interval = int((end_time - start_time) / time_interval)
-        array_of_start_times = range(start_time, end_time, time_interval)
+        xaxis_dimension = [d for d in config['data_dimensions'] if d['name'] == 'xaxis'][0]
+        data_columns= [{'type':'string', 'name':xaxis_dimension['name']}]
+        max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_dimension['value']['value']]
+        interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
+        array_of_intervals = range(max_and_min['min'], max_and_min['max'], interval)
 
-
-        data_dimensions = [d for d in config['data_dimensions'] if d['value']['value']]
+        data_dimensions = [d for d in config['data_dimensions'] if d['name'] != 'xaxis' and d['value']['value']]
 
         results_data_columns = []
         for data_dimension_value in [d['value'] for d in data_dimensions]:
@@ -123,12 +120,13 @@ class Visualization(VisualizationBase):
 
         data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
         number_of_empty_ranges = 0
-        for x in range(len(array_of_start_times)):
+        for x in range(len(array_of_intervals)):
             if x >= len(search_results_collection):
                 continue
             search_result = search_results_collection[x]
-            start_time_pretty = self._get_pretty_date(array_of_start_times[x], self._days_between_start_and_end_time(start_time, end_time))
-            data_row = [start_time_pretty]
+
+            label = '%i to %i' % (array_of_intervals[x], (array_of_intervals[x] + interval))
+            data_row = [label]
 
             for data_dimension_value in [d['value'] for d in data_dimensions]:
                 if data_dimension_value['type'] == 'string':
@@ -148,9 +146,9 @@ class Visualization(VisualizationBase):
                         data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
                     else:
                         data_row.append(0)
-                data_rows.append(data_row)
+            data_rows.append(data_row)
 
-        if number_of_empty_ranges == len(array_of_start_times):
+        if number_of_empty_ranges == len(array_of_intervals):
             return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
 
         number_of_colors = len(data_columns) - 1
@@ -178,8 +176,12 @@ class Visualization(VisualizationBase):
                 'color':text_color
             },
             'hAxis':{
+                'title':xaxis_dimension['value']['name'],
                 'baselineColor':line_color,
                 'textStyle':{
+                    'color':text_color
+                },
+                'titleTextStyle':{
                     'color':text_color
                 },
                 'slantedText':True,
