@@ -1,14 +1,24 @@
-from hashlib import md5
-from urllib2 import urlopen
-from urllib import quote
-import datetime
-from metalayercore.datapoints.classes import BaseDataPoint
-from logger import Logger
-from django.utils import simplejson as json
-from dateutil import parser as dateutil_parser, tz
 import time
+import datetime
+from hashlib import md5
+from dateutil import parser as dateutil_parser, tz
 
+import httplib2
+from apiclient.discovery import build
+
+from logger import Logger
+from oauth2client.client import OAuth2WebServerFlow, Credentials
+from metalayercore.datapoints.classes import BaseDataPoint
+from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
+
+from pprint import pprint
 class DataPoint(BaseDataPoint):
+    flow = OAuth2WebServerFlow(
+        client_id="THIS IS MANAGED ELSEWHERE",
+        client_secret="THIS IS MANAGED ELSEWHERE",
+        scope='https://www.googleapis.com/auth/plus.me',
+        redirect_uri='THIS IS MANAGED ELSEWHERE')
+
     def get_unconfigured_config(self):
         return {
             'type':'googleplusactivitysearch',
@@ -23,24 +33,20 @@ class DataPoint(BaseDataPoint):
             'configured':False,
             'elements':[
                 {
+                    'name':'oauth2',
+                    'display_name':'oauth2',
+                    'help':"""To access data from Google+, you need to authorize Delv to collect data on your
+                              behalf.<br/><br/>
+                              Please click the Authorize button below, you will then be take to a Google web page so you can
+                              authorize Delv.""",
+                    'type':'oauth2',
+                    'value':''
+                },
+                {
                     'name':'keywords',
                     'display_name':'What to search for',
                     'help':'The keywords or hashtags that you want to use to search Google+',
                     'type':'text',
-                    'value':''
-                },
-                {
-                    'name':'api_key',
-                    'display_name':'Your Google+ api key',
-                    'help':'Searching Google+ requires and api key. to get one or change your\'s, click '
-                           '<a href="https://code.google.com/apis/console#access" target="_blank">'
-                           'here</a>.<br/><br/>'
-                           '<span class="extra">It\'s quite easy to get an API Key, just choose to create '
-                           'a new project from the drop down menu in the top left of the screen, make '
-                           'sure you turn on Google+ API in the services section then click on API '
-                           'Access on the left and copy the API Key (found about half way down the screen) '
-                           'into the box above and your done!</span>',
-                    'type':'api_key',
                     'value':''
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=2)).timetuple())),
@@ -57,7 +63,7 @@ class DataPoint(BaseDataPoint):
                     "<p style='float:left; padding:2px 0 0 8px;font-weight:bold;width:40%;overflow:hidden;height:12px;'>${author_display_name}</p>"\
                     "<p style='margin-bottom:2px;text-align:right'>"\
                         "<span style='position:relative;bottom:4px;right:10px;'>${pretty_date}</span>"\
-                        "<img src='/static/images/lib/yoo/google_plus_2424.png' style='width:15px;'/>"\
+                        "<img src='/static/images/thedashboard/data_points/googleplus_small.png' style='width:15px;'/>"\
                     "</p>"\
                     "<a href='${link}'><p style='padding-left:60px;' class='tool_tip' title='click to see original post in Google+'>${title}</p></a>"\
                     "<ul style='padding-left:60px;' class='actions'></ul>"\
@@ -73,30 +79,50 @@ class DataPoint(BaseDataPoint):
 
     def validate_config(self, config):
         keywords = [e for e in config['elements'] if e['name'] == 'keywords'][0]['value']
-        api_key = [e for e in config['elements'] if e['name'] == 'api_key'][0]['value']
 
-        errors = { 'keywords':[], 'api_key':[] }
+        errors = { 'keywords':[] }
         if not keywords or not keywords.strip():
             errors['keywords'].append('You must search for something.')
 
-        if not api_key or not api_key.strip():
-            errors['api_key'].append('You must provide an api key')
-
-        #TODO should validate the api key here
-
-        if errors['keywords'] or errors['api_key']:
+        if errors['keywords']:
             return False, errors
         return True, {}
 
+    def oauth_get_oauth2_return_handler(self, data_point_id):
+        flow = self.flow
+        flow.params['state'] = '_'.join([data_point_id, self.get_unconfigured_config()['type']])
+        return flow
+
+    def oauth_credentials_are_valid(self, credentials_json):
+        if not credentials_json:
+            return False
+        try:
+            credentials = Credentials.new_from_json(credentials_json)
+        except Exception:
+            return False
+        if credentials is None or credentials.invalid:
+            return False
+        return True
+
+    def oauth_poll_for_new_credentials(self, config):
+        credentials = GoogleOauth2Controller.PollForNewCredentials(self.oauth_get_oauth2_return_handler(config['id']))
+        if not credentials:
+            return None
+        oauth_element = [e for e in config['elements'] if e['name'] == 'oauth2'][0]
+        oauth_element['value'] = credentials.to_json()
+        return config
+
+    def oauth_get_oauth_authenticate_url(self, id):
+        authorize_url = GoogleOauth2Controller.GetOauth2AuthorizationUrl(self.oauth_get_oauth2_return_handler(id))
+        return authorize_url
+
     def tick(self, config):
         Logger.Info('%s - tick - started - with config: %s' % (__name__, config))
-        api_key = [e for e in config['elements'] if e['name'] == 'api_key'][0]['value']
         keywords = [e for e in config['elements'] if e['name'] == 'keywords'][0]['value']
-        keywords = quote(keywords)
-        url = 'https://www.googleapis.com/plus/v1/activities?query=%s&pp=1&key=%s' % (keywords, api_key)
-        response = urlopen(url).read()
-        Logger.Debug('%s - tick - raw response: %s' % (__name__, response))
-        response = json.loads(response)
+        credentials = Credentials.new_from_json([e for e in config['elements'] if e['name'] == 'oauth2'][0]['value'])
+        http = credentials.authorize(httplib2.Http())
+        service = build('plus', 'v1', http=http)
+        response = service.activities().search(query=keywords).execute()
         Logger.Debug('%s - tick - JSON response: %s' % (__name__, response))
         content = [self._map_googleplus_item_to_content_item(config, item) for item in response['items']]
         Logger.Info('%s - tick - finished' % __name__)
