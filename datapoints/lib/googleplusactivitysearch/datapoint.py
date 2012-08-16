@@ -11,7 +11,7 @@ from oauth2client.client import OAuth2WebServerFlow, Credentials
 from metalayercore.datapoints.classes import BaseDataPoint
 from metalayercore.oauth2bridge.controllers import GoogleOauth2Controller
 
-from pprint import pprint
+
 class DataPoint(BaseDataPoint):
     flow = OAuth2WebServerFlow(
         client_id="THIS IS MANAGED ELSEWHERE",
