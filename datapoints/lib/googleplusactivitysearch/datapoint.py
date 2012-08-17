@@ -26,7 +26,7 @@ class DataPoint(BaseDataPoint):
             'is_live':True,
             'display_name_short':'Google+',
             'full_display_name':'Google+ Search',
-            'instructions':self.advanced_feature_markup + '<br/>Use this data point to search the public Google+ activity stream.',
+            'instructions': '<br/>Use this data point to search the public Google+ activity stream.',
             'image_large':'/static/images/thedashboard/data_points/googleplus_large.png',
             'image_medium':'/static/images/thedashboard/data_points/googleplus_medium.png',
             'image_small':'/static/images/thedashboard/data_points/googleplus_small.png',
