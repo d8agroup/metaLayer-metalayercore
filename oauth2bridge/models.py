@@ -1,11 +1,17 @@
 from django.db import models
-from djangotoolbox.fields import DictField
 from oauth2client.client import Storage, Credentials
-from django.utils import simplejson as json
 
-class GoogleOauth2StorageObject(Storage):
-    def __init__(self, id):
-        self.id = id
+
+class Oauth2StorageObject(Storage):
+    def __init__(self, implementation, access_id):
+        """Class to manage inserting and retrieving credential objects for the
+        various OAuth-enabled resource providers. All actual work is delegated
+        to the concrete model classes which are passed in as a parameter.
+
+        `implementation` must be a class, not an instance
+        """
+        self.access_id = access_id
+        self._impl = implementation
 
     def locked_get(self):
         """
@@ -16,9 +22,9 @@ class GoogleOauth2StorageObject(Storage):
         oauth2client.Credentials: the credentials
         """
         try:
-            storage = GoogleOauth2Storage.objects.get(access_id=self.id)
+            storage = self._impl.objects.get(access_id=self.access_id)
             return storage.get_credentials()
-        except GoogleOauth2Storage.DoesNotExist:
+        except self._impl.DoesNotExist:
             return None
 
     def locked_put(self, credentials):
@@ -30,9 +36,9 @@ class GoogleOauth2StorageObject(Storage):
         credentials: Credentials, the credentials to store.
         """
         try:
-            storage = GoogleOauth2Storage.objects.get(access_id=self.id)
-        except GoogleOauth2Storage.DoesNotExist:
-            storage = GoogleOauth2Storage(access_id=self.id)
+            storage = self._impl.objects.get(access_id=self.access_id)
+        except self._impl.DoesNotExist:
+            storage = self._impl(access_id=self.access_id)
         storage.set_credentials(credentials)
         storage.save()
 
@@ -41,10 +47,11 @@ class GoogleOauth2StorageObject(Storage):
         Delete Credentials from the datastore.
         """
         try:
-            storage = GoogleOauth2Storage.objects.get(access_id=self.id)
+            storage = self._impl.objects.get(access_id=self.access_id)
             storage.delete()
-        except GoogleOauth2Storage.DoesNotExist:
+        except self._impl.DoesNotExist:
             return
+
 
 class GoogleOauth2Storage(models.Model):
     access_id = models.CharField(max_length=256)
@@ -57,6 +64,20 @@ class GoogleOauth2Storage(models.Model):
     def get_credentials(self):
         credentials = Credentials.new_from_json(self.credentials)
         return credentials
+
+
+class FacebookOauth2Storage(models.Model):
+    access_id = models.CharField(max_length=256)
+    credentials = models.TextField()
+
+    def set_credentials(self, raw_credentials):
+        credentials = raw_credentials.to_json()
+        self.credentials = credentials
+
+    def get_credentials(self):
+        credentials = Credentials.new_from_json(self.credentials)
+        return credentials
+
 
 class CredentialsStoreObjects(models.Model):
     key = models.TextField()

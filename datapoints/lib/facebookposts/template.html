@@ -1,0 +1,136 @@
+<li style="width:100%;">
+    <img src="/static/images/thedashboard/data_points/facebook_small.png" style="width:20px; padding-right:10px;" align="left" />
+    <p style="float:right;padding-right:10px;">${pretty_date}</p>
+    <p style="margin-bottom:2px;">${source_display_name}</p>
+    <p style="padding-left:30px;">${author_display_name}<span style="font-weight:bold"> ${title}</span></p>
+    <ul style="padding-left:30px;" class="actions">
+        <li class="action_values" style="margin-top:5px;">
+            <table style="width:100%">
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Total Reach</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_unique_f" data-facet_value="${extensions_post_impressions_unique_f}">${parseInt(extensions_post_impressions_unique_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Total Impressions</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_f" data-facet_value="${extensions_post_impressions_f}">${parseInt(extensions_post_impressions_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Organic Reach</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_organic_unique_f" data-facet_value="${extensions_post_impressions_organic_unique_f}">${parseInt(extensions_post_impressions_organic_unique_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Organic Impressions</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_organic_f" data-facet_value="${extensions_post_impressions_organic_f}">${parseInt(extensions_post_impressions_organic_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Reach From Fans</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_fan_unique_f" data-facet_value="${extensions_post_impressions_fan_unique_f}">${parseInt(extensions_post_impressions_fan_unique_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Impressions From Fans</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_impressions_fan_f" data-facet_value="${extensions_post_impressions_fan_f}">${parseInt(extensions_post_impressions_fan_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{if (typeof extensions_post_consumptions_f !== 'undefined')}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Consumers (Total Count)</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_consumptions_f" data-facet_value="${extensions_post_consumptions_f}">${parseInt(extensions_post_consumptions_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Consumers (Unique Users)</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_consumptions_unique_f" data-facet_value="${extensions_post_consumptions_unique_f}">${parseInt(extensions_post_consumptions_unique_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{/if}}
+                {{if (typeof extensions_post_negative_feedback_f !== 'undefined')}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Negative Feedback</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_negative_feedback_f" data-facet_value="${extensions_post_negative_feedback_f}">${parseInt(extensions_post_negative_feedback_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Negative Feedback Users</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_negative_feedback_unique_f" data-facet_value="${extensions_post_negative_feedback_unique_f}">${parseInt(extensions_post_negative_feedback_unique_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{/if}}
+                {{if (typeof extensions_post_story_adds_f !== 'undefined')}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Talking About This (Post)</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_story_adds_unique_f" data-facet_value="${extensions_post_story_adds_unique_f}">${parseInt(extensions_post_story_adds_unique_f)}</a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Stories</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_story_adds_f" data-facet_value="${extensions_post_story_adds_f}">${parseInt(extensions_post_story_adds_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{/if}}
+                <!-- This if statement protects against ostensibly duplicate metrics:
+                        post_storytellers == post_story_adds_unique
+                        post_stories == post_story_adds
+                -->
+                {{if (typeof extensions_post_storytellers_f !== 'undefined') &&
+                     (typeof extensions_post_story_adds_unique_f === 'undefined')}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Talking About This (Post)</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_storytellers_f" data-facet_value="${extensions_post_storytellers_f}">${parseInt(extensions_post_storytellers_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{/if}}
+                {{if (typeof extensions_post_stories_f !== 'undefined') &&
+                     (typeof extensions_post_story_adds_f === 'undefined')}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Post Stories</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_stories_f" data-facet_value="${extensions_post_stories_f}">${parseInt(extensions_post_stories_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Lifetime Engaged Users</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_range_filter" data-facet_name="extensions_post_engaged_users_f" data-facet_value="${extensions_post_engaged_users_f}">${parseInt(extensions_post_engaged_users_f)}</a>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </li>
+    </ul>
+</li>

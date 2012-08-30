@@ -80,12 +80,8 @@ class DataPoint(BaseDataPoint):
     def validate_config(self, config):
         keywords = [e for e in config['elements'] if e['name'] == 'keywords'][0]['value']
 
-        errors = { 'keywords':[] }
         if not keywords or not keywords.strip():
-            errors['keywords'].append('You must search for something.')
-
-        if errors['keywords']:
-            return False, errors
+            return False, { 'keywords':['You must search for something'] }
         return True, {}
 
     def oauth_get_oauth2_return_handler(self, data_point_id):

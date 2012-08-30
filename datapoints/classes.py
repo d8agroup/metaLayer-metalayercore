@@ -11,6 +11,33 @@ class BaseDataPoint(object):
         return config
 
     def tick(self, config):
+        """Retrieve and format data for this datapoint. The response is a
+        dictionary of the following form: {
+            'id': 12345,                            # An ID for this piece of content. Implementations must decide if this should be globally unique or not.
+            'time': TODO:                           # The time this content was created or last updated.
+            'link': 'http://twitter.com/foo/1234',  # A URI to the canonical source.
+            'text': [{
+                'language': 'en_US',                # Language of the content item.
+                'title': 'My Title',                # Title for the item.
+                'text': 'Blah blah blah',           # Text for the item.
+                'tags': 'Philadelphia, Beer',       # Tags for the item
+            }],
+            'author': {
+                'display_name': 'Rich Schumacher',  # Friendly name of the author.
+                'link': 'http://twitter.com/richid',# URI for the author.
+                'image': 'http://foo.com/me.jpg',   # URI for author's image.
+            },
+            'channel': {
+                'id': 12345,                        # ID of the channel
+                'type': 'twitter',                  # Type of the channel.
+                'sub_type': 'search',               # Sub-type of the channel.
+            },
+            'source': {
+                'id': MD5('twitter'),               # ID of the source.
+                'display_name': 'Twitter Search',   # Friendly name of the source.
+            }
+        }
+        """
         pass
 
     def oauth_credentials_are_valid(self, credentials_json):
@@ -37,7 +64,7 @@ class BaseDataPoint(object):
             'type':'hidden',
             'value':start_time
         }
-    
+
     def _generate_base_search_end_time_config_element(self, end_time=None):
         if not end_time:
             end_time = '*'
@@ -50,4 +77,3 @@ class BaseDataPoint(object):
             'type':'hidden',
             'value':end_time
         }
-            
