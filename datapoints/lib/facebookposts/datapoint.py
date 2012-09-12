@@ -127,11 +127,18 @@ class DataPoint(BaseDataPoint):
         }
 
     def get_content_item_template(self):
-        """Fetch HTML from external template."""
+        """Fetch HTML from external template but checking cache first.
+        XXX: Be sure to disable this during development.
+        """
 
-        path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + "/template.html", "rb") as f:
-            tpl = f.read().replace("\n", "")
+        tpl_path = os.path.dirname(os.path.abspath(__file__)) + "/template.html"
+        tpl_key = md5(tpl_path).hexdigest()
+        tpl = self.cache_get(tpl_key)
+
+        if not tpl:
+            with open(tpl_path, "rb") as f:
+                tpl = f.read().replace("\n", "")
+                self.cache_add(tpl_key, tpl, timeout=10*60)
 
         return tpl
 

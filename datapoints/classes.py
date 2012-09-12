@@ -1,3 +1,6 @@
+from django.core.cache import cache
+
+
 class BaseDataPoint(object):
     advanced_feature_markup = '<div class="advanced">This is an advanced feature and requires a bit of technical know-how '\
                               'to use. We\'re working to make this less painful, we promise.</div>'
@@ -51,6 +54,12 @@ class BaseDataPoint(object):
 
     def update_data_point_with_oauth_dependant_config(self, config):
         return config
+
+    def cache_add(self, key, value, timeout=10*60):
+        cache.add(key, value, timeout=timeout)
+
+    def cache_get(self, key, default=None):
+        return cache.get(key, default)
 
     def _generate_base_search_start_time_config_element(self, start_time=None):
         if not start_time:
