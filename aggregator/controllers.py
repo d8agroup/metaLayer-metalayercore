@@ -168,7 +168,7 @@ def post_content_to_solr(content, commit=True):
     request_data = json.dumps(content)
     Logger.Debug('%s - post_content_to_solr - posting the following to solr: %s' % (__name__, request_data))
     try:
-        solr_url = '%s/update/json/%s' % (solr_url, '?commit=true' if commit else '')
+        solr_url = '%s/%s/%s' % (solr_url, settings.SOLR_CONFIG['solr_update_url'],  '?commit=true' if commit else '')
         request = urllib2.Request(solr_url, request_data, {'Content-Type': 'application/json'})
         response = urllib2.urlopen(request)
         response_stream = response.read()
