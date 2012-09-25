@@ -198,7 +198,7 @@ class SearchResultsParser(object):
     def _extract_keywords(self, solr_response):
         Logger.Info('%s - SearchResultsParser._extract_keywords - started' % __name__)
         params = solr_response['responseHeader']['params']
-        keywords = params['q'] if 'q' in params and params['q'] != '*' else None
+        keywords = params['q'] if 'q' in params and params['q'] != '*:*' else None
         Logger.Info('%s - SearchResultsParser._extract_keywords - finished' % __name__)
         return keywords
 
