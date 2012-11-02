@@ -29,10 +29,18 @@ class DataPoint(BaseDataPoint):
                     'type':'text',
                     'value':''
                 },
-                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=6)).timetuple())),
+                self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=168)).timetuple())),
                 self._generate_base_search_end_time_config_element()
+            ],
+            'meta_data':[
+                {
+                    'display_name':'Channel',
+                    'name':'extensions_channel_s',
+                    'type':'string'
+                }
             ]
         }
+
 
     def get_content_item_template(self):
         return "" \
@@ -74,6 +82,17 @@ class DataPoint(BaseDataPoint):
         return content
 
     def _map_feed_item_to_content_item(self, config, item):
+        def parse_date_string_with_timezone(date_string):
+            parsed_date = dateutil_parser.parse(date_string)
+            try:
+                parsed_date = parsed_date.astimezone(tz.tzutc())
+            except ValueError:
+                parsed_date = parsed_date.replace(tzinfo=tz.tzutc())
+                now = datetime.datetime.now(tz.tzutc()) - datetime.timedelta(seconds=60)
+                if parsed_date > now:
+                    parsed_date = now
+            return parsed_date
+
         return {
             'id':md5(item['link']).hexdigest(),
             'text':[
@@ -85,7 +104,7 @@ class DataPoint(BaseDataPoint):
                     'tags':[t['term'] for t in item['tags']] if 'tags' in item else []
                 }
             ],
-            'time': time.mktime(dateutil_parser.parse(item['updated']).astimezone(tz.tzutc()).timetuple()),
+            'time': time.mktime(parse_date_string_with_timezone(item['updated']).timetuple()),
             'link':item['link'],
             'author':{
                 'display_name':item['author'] if 'author' in item else 'none',
@@ -98,7 +117,10 @@ class DataPoint(BaseDataPoint):
             'source':{
                 'id':self.generate_configured_guid(config),
                 'display_name':self.generate_configured_display_name(config),
-                }
+            },
+            'extensions':{
+                'channel':{ 'type':'string', 'value':'Feed' }
+            }
         }
 
     def _clean_url_for_display_name(self, url):
