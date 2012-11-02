@@ -63,6 +63,10 @@ class DataPoint(BaseDataPoint):
             ],
             'meta_data': [
                 {
+                    'display_name':'Channel',
+                    'name':'extensions_channel_s',
+                    'type':'string'
+                },{
                     'display_name': 'Lifetime Post Total Reach',
                     'name': 'extensions_post_impressions_unique_f',
                     'type': 'float'
@@ -281,8 +285,8 @@ class DataPoint(BaseDataPoint):
             }
 
             # Attach all the insight information
-            item['extensions'] = \
-                dict((_['name'], dict(type='float', value=_['values'][0]['value'])) for _ in insights[post['id']] if _['name'] in attrs)
+            item['extensions'] = dict((_['name'], dict(type='float', value=_['values'][0]['value'])) for _ in insights[post['id']] if _['name'] in attrs)
+            item['extensions']['channel'] = { 'type':'string', 'value':'Facebook Post' }
 
             content_items.append(item)
 

@@ -29,10 +29,19 @@ class DataPoint(BaseDataPoint):
                 'value':''},
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=1)).timetuple())),
                 self._generate_base_search_end_time_config_element()],
-            'meta_data':[{
-                'display_name':'Twitter Username',
-                'name':'extensions_twitterusername_s',
-                'type':'string'}]}
+            'meta_data':[
+                {
+                    'display_name':'Twitter Username',
+                    'name':'extensions_twitterusername_s',
+                    'type':'string'
+                },
+                {
+                    'display_name':'Channel',
+                    'name':'extensions_channel_s',
+                    'type':'string'
+                }
+            ]
+        }
 
     def get_content_item_template(self):
         return ""\
@@ -104,9 +113,7 @@ class DataPoint(BaseDataPoint):
                 'display_name':self.generate_configured_display_name(config),
             },
             'extensions':{
-                'twitterusername':{
-                    'type':'string',
-                    'value':item['from_user']
-                }
+                'twitterusername':{ 'type':'string', 'value':item['from_user'] },
+                'channel':{'type':'string', 'value':'Twitter'}
             }
         }

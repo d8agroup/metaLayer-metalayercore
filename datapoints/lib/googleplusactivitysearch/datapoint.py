@@ -51,7 +51,12 @@ class DataPoint(BaseDataPoint):
                 },
                 self._generate_base_search_start_time_config_element(start_time=time.mktime((datetime.datetime.utcnow() - datetime.timedelta(hours=2)).timetuple())),
                 self._generate_base_search_end_time_config_element()
-            ]
+            ],
+            'extensions': [{
+                'display_name':'Channel',
+                'name':'extensions_channel_s',
+                'type':'string'
+            }]
         }
 
     def get_content_item_template(self):
@@ -143,5 +148,8 @@ class DataPoint(BaseDataPoint):
             'source':{
                 'id':self.generate_configured_guid(config),
                 'display_name':self.generate_configured_display_name(config),
+            },
+            'extensions':{
+                'channel':{'type':'string', 'value':'Google News'}
             }
         }
