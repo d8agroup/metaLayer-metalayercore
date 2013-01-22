@@ -82,7 +82,7 @@ class AggregationController(object):
         for data_point in data_points:
             dpc = DataPointController(data_point)
             solr_url = settings.SOLR_CONFIG['solr_url']
-            solr_url = '%s/select/?q=*&wt=json&sort=time+desc&rows=%i&fq=source_id:%s' % (solr_url, historic_limit, dpc.generate_configured_guid())
+            solr_url = '%s/select/?q=*:*&wt=json&sort=time+desc&rows=%i&fq=source_id:%s' % (solr_url, historic_limit, dpc.generate_configured_guid())
             try:
                 request = urllib2.Request(solr_url)
                 response = urllib2.urlopen(request)

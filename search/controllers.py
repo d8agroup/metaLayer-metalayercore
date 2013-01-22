@@ -36,7 +36,7 @@ class SearchController(object):
         if search_query_replacements:
             for replacement in search_query_replacements:
                 search_url = re.sub(replacement['pattern'], replacement['replacement'], search_url)
-        Logger.Debug('%s - SearchController.run_search_and_return_results - contacting solr with url:%s' % (__name__, search_url))
+        Logger.Info('%s - SearchController.run_search_and_return_results - contacting solr with url:%s' % (__name__, search_url))
         response = urlopen(search_url).read()
         response = json.loads(response)
         srp = SearchResultsParser(response, '/search', search_filters)
