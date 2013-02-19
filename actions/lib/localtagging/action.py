@@ -69,7 +69,7 @@ class Action(BaseAction):
         text = self._extract_text(config, content_item)
         tokenized = tokenizer.tokenize(text)
         tagged = tagger.tag(tokenized)
-        results = []
+        results = [word.replace('#', '') for word in text.split() if word.startswith('#')]
         for pair in tagged:
             if len(pair) > 1:
                 if pair[1] and pair[1].startswith('N'):
