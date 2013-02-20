@@ -55,7 +55,7 @@ class SearchQueryParser(object):
 
     def _parse_keywords(self):
         Logger.Info('%s - SearchQueryParser._parse_keywords - started' % __name__)
-        keywords_query = 'q=%s' % (quote(self.params['keywords'])) if 'keywords' in self.params and self.params['keywords'] != '' and self.params['keywords'] != None else 'q=*:*'
+        keywords_query = 'q=%s' % ('text_search:' + quote(self.params['keywords'])) if 'keywords' in self.params and self.params['keywords'] != '' and self.params['keywords'] != None else 'q=*:*'
         Logger.Info('%s - SearchQueryParser._parse_keywords - finished' % __name__)
         return keywords_query
 
