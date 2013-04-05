@@ -25,11 +25,11 @@ class DataPoint(BaseDataPoint):
                 self._generate_base_search_end_time_config_element(end_time=time.mktime(end_date.timetuple()))],
             'meta_data': [
                 {'display_name': 'User Id', 'name': 'extensions_userid_s', 'type': 'string'},
-                {'display_name': 'User Registered Date', 'name': 'extensions_userregistereddate_dt', 'type': 'date'},
+                {'display_name': 'User Registered Date', 'name': 'extensions_userregistereddate_s', 'type': 'string'},
                 {'display_name': 'Email Address', 'name': 'extensions_useremail_s', 'type': 'string'},
                 {'display_name': 'First Name', 'name': 'extensions_userfirstname_s', 'type': 'string'},
                 {'display_name': 'Surname', 'name': 'extensions_usersurname_s', 'type': 'string'},
-                {'display_name': 'Date in Cart', 'name': 'extensions_dateincart_dt', 'type': 'date'},
+                {'display_name': 'Date in Cart', 'name': 'extensions_dateincart_s', 'type': 'string'},
                 {'display_name': 'Status', 'name': 'extensions_status_s', 'type': 'string'},
                 {'display_name': 'Product Url', 'name': 'extensions_producturl_s', 'type': 'string'},
                 {'display_name': 'Product Amount', 'name': 'extensions_productamount_f', 'type': 'float'},
@@ -38,7 +38,7 @@ class DataPoint(BaseDataPoint):
                 {'display_name': 'Boutique', 'name': 'extensions_boutique_s', 'type': 'string'},
                 {'display_name': 'Label', 'name': 'extensions_label_s', 'type': 'string'},
                 {'display_name': 'Order ID', 'name': 'extensions_orderid_s', 'type': 'string'},
-                {'display_name': 'Date Order Created', 'name': 'extensions_ordercreateddate_dt', 'type': 'date'},
+                {'display_name': 'Date Order Created', 'name': 'extensions_ordercreateddate_s', 'type': 'string'},
                 {'display_name': 'Promo Code', 'name': 'extensions_promocode_s', 'type': 'string'},
                 {'display_name': 'Link Share', 'name': 'extensions_linkshare_s', 'type': 'string'},
                 {'display_name': 'Order Total', 'name': 'extensions_ordertotal_f', 'type': 'float'},
@@ -54,7 +54,7 @@ class DataPoint(BaseDataPoint):
         return template
 
     def generate_configured_guid(self, config):
-        base_string = 'noeticboxsales_source'
+        base_string = 'noeticboxsales_v01_source'
         return md5(base_string).hexdigest()
 
     def generate_configured_display_name(self, config):

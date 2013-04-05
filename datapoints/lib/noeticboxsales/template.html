@@ -19,9 +19,30 @@
                         <label>User Registered Date</label>
                         <span style="float:right;padding-right:10px;font-weight:bold;">
                             <a class="action_inline_filter"
-                               data-facet_name="extensions_userregistereddate_dt"
-                               data-facet_value="${extensions_userregistereddate_dt}">
-                                ${new Date(extensions_userregistereddate_dt).toLocaleFormat()}</a>
+                               data-facet_name="extensions_userregistereddate_s"
+                               data-facet_value="${extensions_userregistereddate_s}">
+                                ${extensions_userregistereddate_s}</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>Email Address</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_filter"
+                               data-facet_name="extensions_useremail_s"
+                               data-facet_value="${extensions_useremail_s}">
+                                ${extensions_useremail_s}
+                            </a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>First Name</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_filter"
+                               data-facet_name="extensions_userfirstname_s"
+                               data-facet_value="${extensions_userfirstname_s}">
+                                ${extensions_userfirstname_s}</a>
                         </span>
                     </td>
                 </tr>
