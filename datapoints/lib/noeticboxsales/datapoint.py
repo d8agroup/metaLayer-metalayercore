@@ -22,7 +22,7 @@ class DataPoint(BaseDataPoint):
             'configured': True,
             'elements': [
                 self._generate_base_search_start_time_config_element(start_time=time.mktime(start_date.timetuple())),
-                self._generate_base_search_end_time_config_element(start_time=time.mktime(end_date.timetuple()))],
+                self._generate_base_search_end_time_config_element(end_time=time.mktime(end_date.timetuple()))],
             'meta_data': [
                 {'display_name': 'User Id', 'name': 'extensions_userid_s', 'type': 'string'},
                 {'display_name': 'User Registered Date', 'name': 'extensions_userregistereddate_dt', 'type': 'date'},
