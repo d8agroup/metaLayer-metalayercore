@@ -54,7 +54,7 @@ class DataPoint(BaseDataPoint):
         return template
 
     def generate_configured_guid(self, config):
-        base_string = 'noeticboxsales_v01_source'
+        base_string = 'noeticboxsales_source'
         return md5(base_string).hexdigest()
 
     def generate_configured_display_name(self, config):
