@@ -40,9 +40,10 @@ class DataPoint(BaseDataPoint):
                 {'display_name': 'Order ID', 'name': 'extensions_orderid_s', 'type': 'string'},
                 {'display_name': 'Date Order Created', 'name': 'extensions_ordercreateddate_dt', 'type': 'date'},
                 {'display_name': 'Promo Code', 'name': 'extensions_promocode_s', 'type': 'string'},
-                {'display_name': 'Link Share', 'name': 'extensions_linksahre_s', 'type': 'string'},
+                {'display_name': 'Link Share', 'name': 'extensions_linkshare_s', 'type': 'string'},
                 {'display_name': 'Order Total', 'name': 'extensions_ordertotal_f', 'type': 'float'},
                 {'display_name': 'Order Items Count', 'name': 'extensions_orderitemscount_f', 'type': 'float'},
+                {'display_name': 'Channel', 'name': 'extensions_channel_s', 'type': 'string'},
             ]
         }
 
