@@ -4,6 +4,7 @@ from metalayercore.visualizations.classes import VisualizationBase
 from django.utils import simplejson as json
 from utils import get_pretty_date
 
+
 class Visualization(VisualizationBase):
 
     bar_limit = 5
@@ -45,7 +46,7 @@ class Visualization(VisualizationBase):
                 }
             ],
             'data_dimensions':[
-                { 'name':'xaxis', 'display_name':'Graph Over', 'type':['float'], 'help':'' },
+                { 'name':'xaxis', 'display_name':'Graph Over', 'type':['string', 'float'], 'help':'' },
                 { 'name':'category2', 'display_name':'Metric 2', 'type':['string', 'float'], 'help':'' },
                 { 'name':'category3', 'display_name':'Metric 3', 'type':['string', 'float'], 'help':'' },
             ]
@@ -56,19 +57,27 @@ class Visualization(VisualizationBase):
 
         xaxis_dimension = [d for d in config['data_dimensions'] if d['name'] == 'xaxis'][0]
         xaxis_metric = xaxis_dimension['value']['value']
-        max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_metric]
-        interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
-        for s in range(max_and_min['min'], max_and_min['max'], interval):
-            this_search = []
-            for dimension in config['data_dimensions']:
-                if dimension['value']['type'] == 'string':
-                    this_search.append({
-                        'name':dimension['value']['value'],
-                        'type':'basic_facet'
-                    })
-            range_query = {'name': xaxis_metric, 'range': {'start': s, 'end': (s + interval - 1)}, 'type': 'range_query'}
-            this_search.append(range_query)
-            return_data.append(this_search)
+        
+        if xaxis_dimension['value']['type'] == 'string':
+            category2_metric = [d for d in config['data_dimensions'] if d['name'] == 'category2'][0]['value']['value']
+            return_data.append([{
+                'type': 'pivot_query',
+                'pivot': xaxis_metric + "," + category2_metric
+            }])
+        else:        
+            max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_metric]
+            interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
+            for s in range(max_and_min['min'], max_and_min['max'], interval):
+                this_search = []
+                for dimension in config['data_dimensions']:
+                    if dimension['value']['type'] == 'string':
+                        this_search.append({
+                            'name':dimension['value']['value'],
+                            'type':'basic_facet'
+                        })
+                range_query = {'name': xaxis_metric, 'range': {'start': s, 'end': (s + interval - 1)}, 'type': 'range_query'}
+                this_search.append(range_query)
+                return_data.append(this_search)
 
         return return_data
 
@@ -99,57 +108,61 @@ class Visualization(VisualizationBase):
         data_rows = []
 
         xaxis_dimension = [d for d in config['data_dimensions'] if d['name'] == 'xaxis'][0]
-        data_columns= [{'type':'string', 'name':xaxis_dimension['name']}]
-        max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_dimension['value']['value']]
-        interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
-        array_of_intervals = range(max_and_min['min'], max_and_min['max'], interval)
 
-        data_dimensions = [d for d in config['data_dimensions'] if d['name'] != 'xaxis' and d['value']['value']]
+        if xaxis_dimension['value']['type'] == 'string':
+            pass
+        else:
 
-        results_data_columns = []
-        for data_dimension_value in [d['value'] for d in data_dimensions]:
-            if data_dimension_value['type'] != 'string':
-                results_data_columns.append(data_dimension_value['name'])
-            else:
-                for search_result in search_results_collection:
-                    facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
-                    for f in facets:
-                        if f['name'] not in results_data_columns:
-                            results_data_columns.append(f['name'])
+            data_columns= [{'type':'string', 'name':xaxis_dimension['name']}]
+            max_and_min = search_configuration['base_search_configuration']['facet_range_groups'][xaxis_dimension['value']['value']]
+            interval = int((max_and_min['max'] - max_and_min['min']) / self.steps_backwards)
+            array_of_intervals = range(max_and_min['min'], max_and_min['max'], interval)
 
+            data_dimensions = [d for d in config['data_dimensions'] if d['name'] != 'xaxis' and d['value']['value']]
 
-        data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
-        number_of_empty_ranges = 0
-        for x in range(len(array_of_intervals)):
-            if x >= len(search_results_collection):
-                continue
-            search_result = search_results_collection[x]
-
-            label = '%i to %i' % (array_of_intervals[x], (array_of_intervals[x] + interval))
-            data_row = [label]
-
+            results_data_columns = []
             for data_dimension_value in [d['value'] for d in data_dimensions]:
-                if data_dimension_value['type'] == 'string':
-                    facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
-                    dynamic_data_rows = []
-                    for c in results_data_columns:
-                        candidate_facet = [f for f in facets if f['name'] == c]
-                        if candidate_facet:
-                            dynamic_data_rows.append(candidate_facet[0]['count'])
-                        else:
-                            dynamic_data_rows.append(0)
-                    if not sum(dynamic_data_rows):
-                        number_of_empty_ranges += 1
-                    data_row += dynamic_data_rows
+                if data_dimension_value['type'] != 'string':
+                    results_data_columns.append(data_dimension_value['name'])
                 else:
-                    if data_dimension_value['value'] in search_result['stats'] and search_result['stats'][data_dimension_value['value']]:
-                        data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
-                    else:
-                        data_row.append(0)
-            data_rows.append(data_row)
+                    for search_result in search_results_collection:
+                        facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                        for f in facets:
+                            if f['name'] not in results_data_columns:
+                                results_data_columns.append(f['name'])
 
-        if number_of_empty_ranges == len(array_of_intervals):
-            return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
+            data_columns += [{'type':'number', 'name':'%s' % c } for c in results_data_columns]
+            number_of_empty_ranges = 0
+            for x in range(len(array_of_intervals)):
+                if x >= len(search_results_collection):
+                    continue
+                search_result = search_results_collection[x]
+
+                label = '%i to %i' % (array_of_intervals[x], (array_of_intervals[x] + interval))
+                data_row = [label]
+
+                for data_dimension_value in [d['value'] for d in data_dimensions]:
+                    if data_dimension_value['type'] == 'string':
+                        facets = [fg for fg in search_result['facet_groups'] if fg['name'] == data_dimension_value['value']][0]['facets']
+                        dynamic_data_rows = []
+                        for c in results_data_columns:
+                            candidate_facet = [f for f in facets if f['name'] == c]
+                            if candidate_facet:
+                                dynamic_data_rows.append(candidate_facet[0]['count'])
+                            else:
+                                dynamic_data_rows.append(0)
+                        if not sum(dynamic_data_rows):
+                            number_of_empty_ranges += 1
+                        data_row += dynamic_data_rows
+                    else:
+                        if data_dimension_value['value'] in search_result['stats'] and search_result['stats'][data_dimension_value['value']]:
+                            data_row.append(search_result['stats'][data_dimension_value['value']]['sum'])
+                        else:
+                            data_row.append(0)
+                data_rows.append(data_row)
+
+            if number_of_empty_ranges == len(array_of_intervals):
+                return "$('#" + config['id'] + "').html(\"<div class='empty_dataset'>Sorry, there is no data to visualize</div>\");"
 
         number_of_colors = len(data_columns) - 1
         data_columns = '\n'.join(["data_%s.addColumn('%s', '%s');" % (config['id'], t['type'], t['name']) for t in data_columns])

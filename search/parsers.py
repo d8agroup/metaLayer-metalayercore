@@ -6,6 +6,7 @@ from datetime import datetime
 from logger import Logger
 from utils import get_pretty_date
 
+
 class SearchDataPointParser(object):
     def __init__(self, data_points):
         Logger.Info('%s - SearchDataPointParser.__init__ - started' % __name__)
@@ -38,6 +39,7 @@ class SearchDataPointParser(object):
         data_point_metadata_filters = '&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (f['name'], f['name']) for f in metadata_filters if f['type'] != 'float'])
         data_point_metadata_stats = '&'.join(['stats.field=%s' % f['name'] for f in metadata_filters if f['type'] == 'float'])
         return '&'.join([data_point_metadata_filters, data_point_metadata_stats])
+
 
 class SearchQueryParser(object):
     def __init__(self, query_params):
@@ -90,6 +92,7 @@ class SearchQueryParser(object):
         Logger.Info('%s - SearchQueryParser._parse_facets - finished' % __name__)
         return facets
 
+
 class SearchActionsParser(object):
     def __init__(self, actions):
         self.actions = actions
@@ -105,6 +108,7 @@ class SearchActionsParser(object):
             return_parts.append('&'.join(['facet.field=%s&f.%s.facet.mincount=1' % (ac._search_encode_property(f), ac._search_encode_property(f)) for f in basic_filters]))
         return_string = '&'.join(return_parts)
         return return_string
+
 
 class SearchResultsParser(object):
     def __init__(self, solr_response, request_base, current_request_args):
@@ -242,6 +246,7 @@ class SearchResultsParser(object):
     def _pretty_date(self, time=False):
         return get_pretty_date(time)
 
+
 class SearchQueryAdditionsParser(object):
     def __init__(self, query_additions):
         Logger.Info('%s - SearchQueryAdditionsParser.__init__ - started' % __name__)
@@ -272,6 +277,10 @@ class SearchQueryAdditionsParser(object):
         stats_queries = [a for a in self.query_additions if a['type'] == 'stats_query']
         if stats_queries:
             additions.append('&'.join(['stats.field=%s' % a['name'] for a in stats_queries]))
+
+        pivot_queries = [a for a in self.query_additions if a['type'] == 'pivot_query']
+        if pivot_queries:
+            additions.append('&'.join(['facet.pivot=%s' % a['pivot'] for a in pivot_queries]))
 
         Logger.Info('%s - SearchQueryAdditionsParser.get_formatted_query_additions - started' % __name__)
         return '&'.join(additions)
