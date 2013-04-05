@@ -1,0 +1,31 @@
+=<li style="width:100%;">
+    <img src="http://www.shoptiques.com/static/QkwNhENd2YYKTVxudSE9Wj5XzTgJACaYfk48sY07cIg.ico" style="width:20px; padding-right:10px;" align="left" />
+    <p style="float:right;padding-right:10px;">${pretty_date}</p>
+    <ul style="padding-left:30px;" class="actions">
+        <li class="action_values" style="margin-top:5px;">
+            <table style="width:100%">
+                <tr>
+                    <td style="padding-bottom:2px;">
+                        <label>User Id</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_filter"
+                               data-facet_name="extensions_userid_s"
+                               data-facet_value="${extensions_userid_s}">
+                                ${extensions_userid_s}
+                            </a>
+                        </span>
+                    </td>
+                    <td style="padding-bottom:2px;">
+                        <label>User Registered Date</label>
+                        <span style="float:right;padding-right:10px;font-weight:bold;">
+                            <a class="action_inline_filter"
+                               data-facet_name="extensions_userregistereddate_dt"
+                               data-facet_value="${extensions_userregistereddate_dt}">
+                                ${new Date(extensions_userregistereddate_dt).toLocaleFormat()}</a>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </li>
+    </ul>
+</li>
