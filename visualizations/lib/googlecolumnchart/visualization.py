@@ -46,7 +46,7 @@ class Visualization(VisualizationBase):
                 }
             ],
             'data_dimensions':[
-                { 'name':'xaxis', 'display_name':'Graph Over', 'type':['string', 'float'], 'help':'' },
+                { 'name':'xaxis', 'display_name':'Graph Over', 'type':['float'], 'help':'' },
                 { 'name':'category2', 'display_name':'Metric 2', 'type':['string', 'float'], 'help':'' },
                 { 'name':'category3', 'display_name':'Metric 3', 'type':['string', 'float'], 'help':'' },
             ]

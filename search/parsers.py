@@ -191,6 +191,16 @@ class SearchResultsParser(object):
         Logger.Info('%s - SearchResultsParser._extract_facet_ranges - finished' % __name__)
         return facet_groups
 
+    def _extract_facet_pivot(self, solr_response):
+        Logger.Info('%s - SearchResultsParser._extract_facet_pivot - started' % __name__)
+        facet_pivots = []
+        if solr_response:
+            facet_pivots = [{'name':f, 'display_name':f, 'facets':[]} for f in solr_response['facet_counts']['facet_pivot'].keys()]
+            for fg in facet_pivots:
+                pass  # TODO: working here
+        Logger.Info('%s - SearchResultsParser._extract_facet_pivot - finished' % __name__)
+        return facet_pivots
+
     def _extract_breadcrumbs(self, args):
         Logger.Info('%s - SearchResultsParser._extract_breadcrumbs - started' % __name__)
         breadcrumbs = []
