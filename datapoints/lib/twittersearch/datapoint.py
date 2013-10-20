@@ -91,10 +91,10 @@ class DataPoint(BaseDataPoint):
         # response = json.loads(response)
         # Logger.Debug('%s - tick - JSON response: %s' % (__name__, response))
         twitter_api = Twython(
-            settings['twython_config']['app_key'],
-            settings['twython_config']['app_secret'],
-            settings['twython_config']['oauth_token'],
-            settings['twython_config']['oauth_secret'])
+            settings.twython_config['app_key'],
+            settings.twython_config['app_secret'],
+            settings.twython_config['oauth_token'],
+            settings.twython_config['oauth_secret'])
         raw_results = twitter_api.search(q=keywords, lang='en', results_type='recent', count=100)
         content = [self._map_twitter_item_to_content_item(config, item) for item in raw_results['statuses']]
         Logger.Info('%s - tick - finished' % __name__)
