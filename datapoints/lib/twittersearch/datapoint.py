@@ -7,6 +7,8 @@ from django.utils import simplejson as json
 from dateutil import parser as dateutil_parser, tz
 import time
 import datetime
+from twython import Twython
+from django.conf import settings
 
 class DataPoint(BaseDataPoint):
     def get_unconfigured_config(self):
@@ -82,26 +84,34 @@ class DataPoint(BaseDataPoint):
     def tick(self, config):
         Logger.Info('%s - tick - started - with config: %s' % (__name__, config))
         keywords = [e for e in config['elements'] if e['name'] == 'keywords'][0]['value']
-        keywords = quote(keywords)
-        url = 'http://search.twitter.com/search.json?q=%s&rpp=50&result_type=recent' % keywords
-        response = urlopen(url).read()
-        Logger.Debug('%s - tick - raw response: %s' % (__name__, response))
-        response = json.loads(response)
-        Logger.Debug('%s - tick - JSON response: %s' % (__name__, response))
-        content = [self._map_twitter_item_to_content_item(config, item) for item in response['results']]
+        # keywords = quote(keywords)
+        # url = 'http://search.twitter.com/search.json?q=%s&rpp=50&result_type=recent' % keywords
+        # response = urlopen(url).read()
+        # Logger.Debug('%s - tick - raw response: %s' % (__name__, response))
+        # response = json.loads(response)
+        # Logger.Debug('%s - tick - JSON response: %s' % (__name__, response))
+        twitter_api = Twython(
+            settings['twython_config']['app_key'],
+            settings['twython_config']['app_secret'],
+            settings['twython_config']['oauth_token'],
+            settings['twython_config']['oauth_secret'])
+        raw_results = twitter_api.search(q=keywords, lang='en', results_type='recent', count=100)
+        content = [self._map_twitter_item_to_content_item(config, item) for item in raw_results['statuses']]
         Logger.Info('%s - tick - finished' % __name__)
         return content
 
-    def _map_twitter_item_to_content_item(self, config, item):
+    def _map_twitter_item_to_content_item(self, config, raw_tweet):
+        user = raw_tweet.get('user', {})
+        screen_name = user.get('screen_name', None)
         return {
-            'id':md5(item['id_str']).hexdigest(),
-            'text':[ { 'title':item['text'].encode('ascii', 'ignore'), } ],
-            'time': int(time.mktime(dateutil_parser.parse(item['created_at']).astimezone(tz.tzutc()).timetuple())),
-            'link':'https://twitter.com/#!/%s/status/%s' % (item['from_user'], item['id_str']),
+            'id':md5(raw_tweet['id_str']).hexdigest(),
+            'text':[ { 'title':raw_tweet['text'].encode('ascii', 'ignore'), } ],
+            'time': int(time.mktime(dateutil_parser.parse(raw_tweet['created_at']).astimezone(tz.tzutc()).timetuple())),
+            'link':'https://twitter.com/#!/%s/status/%s' % (screen_name, raw_tweet['id_str']),
             'author':{
-                'display_name':item['from_user'],
-                'link':'https://twitter.com/#!/%s' % item['from_user'],
-                'image':item['profile_image_url']
+                'display_name': screen_name,
+                'link':'https://twitter.com/#!/%s' % screen_name,
+                'image':user.get('profile_image_url', None)
             },
             'channel':{
                 'id':md5(config['type'] + config['sub_type']).hexdigest(),
@@ -113,7 +123,7 @@ class DataPoint(BaseDataPoint):
                 'display_name':self.generate_configured_display_name(config),
             },
             'extensions':{
-                'twitterusername':{ 'type':'string', 'value':item['from_user'] },
+                'twitterusername':{ 'type':'string', 'value': screen_name},
                 'channel':{'type':'string', 'value':'Twitter'}
             }
         }
